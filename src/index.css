@@ -1,0 +1,193 @@
+:root {
+  --red-1: #ff4a4a;
+  --red-0: #f05959;
+  --blue-0: #72a1ff;
+  --blue-1: #6991e2;
+  --blue-2: #6586c9;
+  --gray-0: #eee;
+  --gray-1: #ccc;
+  --gray-2: #999;
+  --gray-3: #666;
+  --gray-4: #333;
+}
+
+/* Layout */
+html,
+body,
+#root,
+#app {
+  min-height: 100vh;
+}
+
+body {
+  background-color: #f6f6f7;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+#app {
+  display: flex;
+}
+
+/* Preset */
+a {
+  text-decoration: none;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
+  margin-bottom: 0;
+}
+
+td,
+th {
+  padding-left: 20px !important;
+  padding-right: 20px !important;
+}
+
+/* td:first-child {
+  border-radius: 5px 0 0 5px;
+}
+
+td:last-child {
+  border-radius: 0 5px 5px 0;
+} */
+
+/* General styles */
+.section {
+  background-color: #fff;
+  padding: 15px;
+  border-radius: 10px;
+  border: 1px #ddd solid;
+  box-shadow: 0 3px 6px 1px rgba(0, 0, 0, 0.1);
+}
+
+.error_text {
+  color: var(--red-0);
+  text-align: center;
+}
+
+.btn-bd-primary {
+  --bs-btn-font-weight: 400;
+  --bs-btn-color: var(--bs-white);
+  --bs-btn-bg: var(--blue-1);
+  --bs-btn-border-color: none;
+  --bs-btn-border-radius: 0.18rem;
+  --bs-btn-hover-color: var(--bs-white);
+  --bs-btn-hover-bg: var(--blue-2);
+  --bs-btn-hover-border-color: none;
+  --bs-btn-focus-shadow-rgb: none;
+  --bs-btn-active-color: var(--bs-btn-hover-color);
+  --bs-btn-active-bg: var(--blue-2);
+  --bs-btn-active-border-color: none;
+  box-shadow: 0 0 2px 1px rgba(0, 0, 0, 0.1);
+}
+
+.btn-bd-danger {
+  --bs-btn-font-weight: 400;
+  --bs-btn-color: var(--bs-white);
+  --bs-btn-bg: var(--red-1);
+  --bs-btn-border-color: none;
+  --bs-btn-border-radius: 0.18rem;
+  --bs-btn-hover-color: var(--bs-white);
+  --bs-btn-hover-bg: var(--red-0);
+  --bs-btn-hover-border-color: none;
+  --bs-btn-focus-shadow-rgb: none;
+  --bs-btn-active-color: var(--bs-btn-hover-color);
+  --bs-btn-active-bg: var(--red-0);
+  --bs-btn-active-border-color: none;
+  box-shadow: 0 0 2px 1px rgba(0, 0, 0, 0.1);
+}
+
+.btn-circle {
+  user-select: none;
+  height: 32px;
+  width: 32px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+}
+
+.btn-circle:hover {
+  opacity: 0.87;
+  background-color: rgba(95, 99, 104, 0.157);
+}
+
+.btn-circle-fill {
+  user-select: none;
+  height: 32px;
+  width: 32px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  opacity: 0.87;
+  background-color: rgba(95, 99, 104, 0.157);
+}
+
+/* Bootstrap overrides */
+.form-control,
+.form-select {
+  border-radius: 3px;
+}
+
+/* .form-check-input:checked {
+  background-color: var(--blue-0);
+  border-color: var(--blue-0);
+} */
+
+.form-switch.form-switch-md {
+  margin-bottom: 1rem;
+}
+
+.form-switch.form-switch-md .form-check-input {
+  height: 1.5rem;
+  width: calc(2rem + 0.75rem);
+  border-radius: 3rem;
+}
+
+.border-0:focus {
+  box-shadow: none;
+}
+
+/* .alert {
+  border-radius: 10px;
+  box-shadow: 0 3px 6px 1px rgba(0, 0, 0, 0.1);
+} */
+
+.table-td-width {
+    width: 100%;
+    display: inline-block;
+}
+
+@media (max-width: 360px) {
+}
+
+@media (min-width: 361px) and (max-width: 576px) {
+}
+
+@media (min-width: 577px) and (max-width: 768px) {
+}
+
+@media (min-width: 769px) and (max-width: 992px) {
+  .table-td-width {
+    width: 85%;
+  }
+}
+
+@media (min-width: 993px) and (max-width: 1200px) {
+  .table-td-width {
+    width: 75%;
+  }
+}
+
+@media (min-width: 1201px) {
+  .table-td-width {
+    width: 50%;
+  }
+}

@@ -1,0 +1,35 @@
+#sidebar {
+  border-right: none;
+}
+
+#sidebar #logo {
+  height: 45px;
+  color: #ccc;
+  margin: 15px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 40px;
+}
+
+#sidebar #logo h4 {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#sidebar .btn-logo {
+  color: inherit;
+}
+
+#sidebar #logo a {
+  color: inherit;
+}
+
+.menu-item {
+  padding: 0 10px;
+  margin: 1px 0;
+}
+
+hr {
+  color: #666 !important;
+}
