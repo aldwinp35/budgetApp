@@ -31,13 +31,8 @@ function Budget() {
   return (
     <BudgetContext.Provider value={value}>
       <div className="row gap-3 mb-3">
-        <div className="col-12">
-          <h4>My Budget</h4>
-        </div>
-
         <ManageBudget />
-        <Balance />
-
+        {/* <Balance /> */}
         {state.budgets?.map((budget) => (
           <BudgetSection key={budget.id} budget={budget} />
         ))}

@@ -2,17 +2,12 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { CgTrash } from 'react-icons/cg';
 import { TbEdit } from 'react-icons/tb';
-import { money } from '../../assets/lib/helpers';
+import { money, printDate } from '../../assets/lib/helpers';
 import IncomeContext from '../../context/IncomeContext';
 
 function TableRow({ income }) {
-  const { state, setState, datepickerRef, showModal, removeIncome } =
+  const { state, setState, modalInputDate, showModal, removeIncome } =
     React.useContext(IncomeContext);
-
-  function printDate(date) {
-    const d = new Date(date);
-    return d.toUTCString().slice(5, -13).replaceAll(' ', '-');
-  }
 
   function showEditModal(inc) {
     setState({
@@ -22,20 +17,20 @@ function TableRow({ income }) {
       showEditModal: true,
       editingIncome: income.id,
     });
-    datepickerRef.current.datepicker.setDate(new Date(income.date));
+    modalInputDate.current.datepicker.setDate(new Date(income.date));
     showModal();
   }
 
   return (
     <tr className="align-middle">
-      <td className="text-start">{income.name}</td>
-      <td className="text-center">
-        <span className="text-start table-td-width">
-          <nobr>{printDate(income.date)}</nobr>
-        </span>
+      <td className="text-nowrap">
+        <span className="me-4">{income.name}</span>
       </td>
-      <td className="text-center">
-        <span className="text-end table-td-width">{money(income.amount)}</span>
+      <td className="text-nowrap">
+        <span className="me-0">{printDate(income.date)}</span>
+      </td>
+      <td>
+        <span className="me-4">{money(income.amount)}</span>
       </td>
       <td className="text-end">
         <div className="d-inline-flex">

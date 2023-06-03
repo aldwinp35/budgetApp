@@ -8,8 +8,7 @@ import budgetService from '../../api/budgetService';
 import BudgetContext from '../../context/BudgetContext';
 
 function ManageBudget() {
-  const { state, setState, datePicker, modalManageCategory } =
-    React.useContext(BudgetContext);
+  const { state, setState, datePicker, modalManageCategory } = React.useContext(BudgetContext);
 
   function showHidePicker() {
     if (!datePicker.current.datepicker.active) {
@@ -40,7 +39,12 @@ function ManageBudget() {
   }
   return (
     <div className="col-12">
-      <div className="section d-flex align-items-center gap-3">
+      <div className="d-sm-flex justify-content-sm-between">
+        <div className="mb-2 mb-sm-0">
+          <button onClick={showModal} className="btn btn-primary" type="button">
+            Manage Categories
+          </button>
+        </div>
         <div className="position-relative">
           <DatePicker
             refInput={datePicker}
@@ -51,6 +55,17 @@ function ManageBudget() {
               buttonClass: 'btn',
               showOnClick: false,
               showOnFocus: false,
+              beforeShowMonth(date) {
+                switch (date.getMonth()) {
+                  case 6:
+                    if (date.getFullYear() === new Date().getFullYear()) {
+                      return { content: '🔹' };
+                    }
+                    break;
+                  case 8:
+                    return 'highlighted';
+                }
+              },
             }}
             onChange={() => loadBudgets()}
           >
@@ -63,10 +78,6 @@ function ManageBudget() {
             style={{ position: 'absolute', top: '6px', right: '5px' }}
           />
         </div>
-
-        <button onClick={showModal} className="btn btn-primary" type="button">
-          Manage Categories
-        </button>
       </div>
     </div>
   );

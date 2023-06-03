@@ -1,3 +1,4 @@
+/* eslint-disable object-curly-newline */
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Modal as BSModal } from 'bootstrap';
@@ -8,7 +9,7 @@ function Modal({ title, content, cta, closeCallback }) {
     const modal = BSModal.getInstance(modalEl);
     modal.hide();
     modalEl.addEventListener('hidden.bs.modal', () => {
-      if (closeCallback !== null) closeCallback();
+      if (closeCallback != null) closeCallback();
       //   modal.dispose();
     });
   }

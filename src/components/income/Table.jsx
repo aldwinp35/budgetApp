@@ -1,86 +1,91 @@
 import React from 'react';
-import { TbDotsVertical, TbFilter, TbArrowsSort } from 'react-icons/tb';
-import TableRow from './TableRow';
-import Tooltip from '../Tooltip';
+import axios from 'axios';
+import { CgTrash } from 'react-icons/cg';
+import { TbEdit } from 'react-icons/tb';
+import Datatable from '../datatable/DataTable';
 import IncomeContext from '../../context/IncomeContext';
+import { getOptionRequest } from '../../assets/lib/helpers';
 
 function Table() {
-  const { state, showModal } = React.useContext(IncomeContext);
+  const config = getOptionRequest();
+  const { state, setState, modalInputDate, showModal } =
+    React.useContext(IncomeContext);
+
+  function editRow(id) {
+    function action() {
+      /* Open modal and set data in it */
+      const income = state.incomeList.find((inc) => inc.id === id);
+      setState({
+        ...state,
+        category: income.category,
+        amount: income.amount,
+        showEditModal: true,
+        editingIncome: id,
+      });
+      modalInputDate.current.datepicker.setDate(new Date(income.date));
+      showModal();
+    }
+    return (
+      <button
+        type="button"
+        onClick={action}
+        className="btn btn-bd-primary btn-sm"
+      >
+        <TbEdit className="fs-6" />
+      </button>
+    );
+  }
+
+  function deleteRow(id) {
+    async function action() {
+      const result = confirm('Are you sure want to delete this income?');
+      if (!result) {
+        return;
+      }
+
+      try {
+        const response = await axios.delete(`/income/${id}/delete/`, config);
+        if (response.status === 204) {
+          setState({
+            ...state,
+            incomeList: state.incomeList.filter((income) => income.id !== id),
+          });
+        }
+      } catch (error) {
+        if (error?.response) {
+          console.log('Error: ', error.response.data);
+        }
+      }
+    }
+    return (
+      <button
+        type="button"
+        onClick={action}
+        className="btn btn-bd-danger btn-sm"
+      >
+        <CgTrash className="fs-6" />
+      </button>
+    );
+  }
 
   return (
     <div className="col-12 col-lg-9">
       <div className="section">
-        <div className="d-flex justify-content-between mb-3">
-          <button type="button" className="btn btn-primary" onClick={showModal}>
-            New Income
-          </button>
-
-          <div className="dropdown">
-            <div
-              className="btn-circle"
-              role="button"
-              data-bs-toggle="dropdown"
-              aria-expanded="false"
-            >
-              <Tooltip text="Options">
-                <span className="d-flex">
-                  <TbDotsVertical className="fs-5" />
-                </span>
-              </Tooltip>
-            </div>
-            <ul className="dropdown-menu border-0 shadow">
-              <li>
-                <a className="dropdown-item" href="#">
-                  <TbArrowsSort className="fs-5 me-3" />
-                  Sort
-                </a>
-              </li>
-              <li>
-                <a className="dropdown-item" href="#">
-                  <TbFilter className="fs-5 me-3" />
-                  Filter
-                </a>
-              </li>
-              <hr />
-              <li>
-                <a className="dropdown-item" href="#">
-                  Last 30 days
-                </a>
-              </li>
-              <li>
-                <a className="dropdown-item" href="#">
-                  Last 6 month
-                </a>
-              </li>
-              <li>
-                <a className="dropdown-item" href="#">
-                  Custom
-                </a>
-              </li>
-            </ul>
-          </div>
-        </div>
-        <div className="table-responsive">
-          <table className="table">
-            <thead>
-              <tr>
-                <th className="text-center text-md-start">Name</th>
-                <th className="text-center">
-                  <span className="text-start table-td-width">Date</span>
-                </th>
-                <th className="text-center">
-                  <span className="text-end table-td-width">Amount</span>
-                </th>
-                <th>&nbsp;</th>
-              </tr>
-            </thead>
-            <tbody>
-              {state.incomeList.map((income) => (
-                <TableRow key={income.id} income={income} />
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <Datatable
+          options={{
+            title: 'Income',
+            data: () => state.incomeList,
+            rowActions: {
+              edit: editRow,
+              deleteBtn: deleteRow,
+            },
+            formats: {
+              money: ['amount'],
+              date: ['date'],
+            },
+            fields: ['name', 'date', 'amount'],
+          }}
+        />
       </div>
     </div>
   );

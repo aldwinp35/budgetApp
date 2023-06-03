@@ -1,6 +1,3 @@
-/* eslint-disable no-param-reassign */
-/* eslint-disable comma-dangle */
-/* eslint-disable import/prefer-default-export */
 import axios from 'axios';
 import tokenService from '../../api/tokenService';
 import { clientBaseUrl } from './helpers';

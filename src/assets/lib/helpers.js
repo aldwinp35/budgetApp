@@ -36,6 +36,11 @@ export const getRandomColor = () => {
   return selected;
 };
 
+export function printDate(strDate) {
+  const d = new Date(strDate);
+  return d.toUTCString().slice(5, -13).replaceAll(' ', '-');
+}
+
 /**
  * Converts a number to a currency string representation.
  * @param {number | string} value value to be converted.
@@ -51,9 +56,7 @@ export const money = (value) => {
       currency: 'USD',
     });
   } catch (error) {
-    console.error(
-      `Error in ${money.modalInputTextName}. Error details: ${error}`
-    );
+    console.error(`Error in ${money.modalInputTextName}. Error details: ${error}`);
   }
 
   return val;

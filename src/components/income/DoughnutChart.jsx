@@ -1,6 +1,6 @@
+/* eslint-disable object-curly-newline */
 import React from 'react';
 import { Doughnut } from 'react-chartjs-2';
-// eslint-disable-next-line object-curly-newline
 import { Chart, ArcElement, Tooltip, Legend } from 'chart.js';
 import { money } from '../../assets/lib/helpers';
 import IncomeContext from '../../context/IncomeContext';
@@ -49,18 +49,21 @@ function DoughnutChart() {
     },
   };
 
+  const totalIncome = () => {
+    const result = state.incomeList.reduce((_sum, val) => {
+      let sum = _sum;
+      sum += val.amount;
+      return sum;
+    }, 0);
+
+    return result;
+  };
+
   return (
     <div className="col-12 col-sm-6 col-lg-3">
       <div className="section">
         <div className="text-center">
-          <h4 className="fw-bold">
-            {money(
-              state.incomeList.reduce((sum, val) => {
-                sum += val.amount;
-                return sum;
-              }, 0)
-            )}
-          </h4>
+          <h4 className="fw-bold">{money(totalIncome())}</h4>
           <p className="">Total Income</p>
         </div>
         <Doughnut options={options} data={getChartData()} />

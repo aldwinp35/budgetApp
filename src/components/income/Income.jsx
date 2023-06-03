@@ -1,13 +1,9 @@
-/* eslint-disable react/jsx-no-bind */
-/* eslint-disable jsx-a11y/label-has-associated-control */
-/* eslint-disable no-console */
-/* eslint-disable no-alert */
-/* eslint-disable no-restricted-globals */
 import React from 'react';
 import axios from 'axios';
 import { Modal as BSModal } from 'bootstrap';
 import Modal from '../Modal';
 import Table from './Table';
+import Loading from '../Loading';
 import DatePicker from '../DatePicker';
 import DoughnutChart from './DoughnutChart';
 import BlankStateIncome from './BlankStateIncome';
@@ -15,7 +11,9 @@ import IncomeContext from '../../context/IncomeContext';
 import { getOptionRequest } from '../../assets/lib/helpers';
 
 function Income() {
-  const datepickerRef = React.useRef(null);
+  const modalInputDate = React.useRef(null);
+  const incomeDate = React.useRef(null);
+  const loaded = React.useRef(false);
   const config = getOptionRequest();
   const [state, setState] = React.useState({
     category: '',
@@ -24,10 +22,11 @@ function Income() {
     showEditModal: false,
     incomeList: [],
     categoryList: [],
+    date: '',
   });
 
-  function clearModalInput() {
-    datepickerRef.current.value = '';
+  function clearModalInputs() {
+    modalInputDate.current.datepicker.setDate({ clear: true });
     setState({
       ...state,
       category: state.categoryList[0].id,
@@ -47,22 +46,11 @@ function Income() {
   function hideModal() {
     const modalEl = document.querySelector('.modal');
     const modal = BSModal.getInstance(modalEl);
+    setState({
+      ...state,
+      showEditModal: false,
+    });
     modal.hide();
-  }
-
-  async function loadIncome() {
-    let data;
-    const month = new Date().getMonth();
-    const year = new Date().getFullYear();
-
-    try {
-      const response = await axios.get(`/income/?month=${month}&year=${year}`, config);
-      data = response.data.results;
-    } catch (error) {
-      console.error('Error: ', error);
-    }
-
-    return data;
   }
 
   async function loadIncomeCategories() {
@@ -77,11 +65,30 @@ function Income() {
     return data;
   }
 
+  async function loadIncome() {
+    const month = incomeDate.current.datepicker.getDate('mm');
+    const year = incomeDate.current.datepicker.getDate('yyyy');
+
+    try {
+      const income = await axios.get(`/income/?month=${month}&year=${year}`, config);
+      const categories = await loadIncomeCategories();
+      setState({
+        ...state,
+        incomeList: income.data.results,
+        categoryList: categories,
+        category: categories[0].id,
+      });
+      loaded.current = true;
+    } catch (error) {
+      console.error('Error: ', error);
+    }
+  }
+
   async function addIncome() {
     const income = {
       category: Number(state.category),
       amount: Number(state.amount),
-      date: datepickerRef.current.datepicker.getDate('yyyy-mm-dd'),
+      date: modalInputDate.current.datepicker.getDate('yyyy-mm-dd'),
     };
 
     try {
@@ -92,7 +99,7 @@ function Income() {
           ...state,
           incomeList: newData,
         });
-        clearModalInput();
+        clearModalInputs();
       }
     } catch (error) {
       if (error?.response) {
@@ -103,9 +110,10 @@ function Income() {
 
   async function editIncome(id) {
     const income = {
+      id,
       category: Number(state.category),
       amount: Number(state.amount),
-      date: datepickerRef.current.datepicker.getDate('yyyy-mm-dd'),
+      date: modalInputDate.current.datepicker.getDate('yyyy-mm-dd'),
     };
 
     const response = await axios.put(`/income/${id}/update/`, income, config);
@@ -116,37 +124,19 @@ function Income() {
     }
   }
 
-  async function removeIncome(id) {
-    const result = confirm('Are you sure want to delete this income?');
-    if (!result) {
-      return;
-    }
-
-    try {
-      const response = await axios.delete(`/income/${id}/delete/`, config);
-      if (response.status === 204) {
-        setState({
-          ...state,
-          incomeList: state.incomeList.filter((income) => income.id !== id),
-        });
-      }
-    } catch (error) {
-      if (error?.response) {
-        console.log('Error: ', error.response.data);
-      }
-    }
-  }
-
   function modalContent() {
     return (
       <form onSubmit={(event) => event.preventDefault()} className="position-relative mb-2">
-        <div className="form-floating">
+        <div className="mb-2">
+          <label htmlFor="categoryInput">Category</label>
           <select
+            id="categoryInput"
             onChange={(event) => {
               setState({ ...state, category: event.target.value });
             }}
             value={state.category}
-            className="form-select mb-2"
+            className="form-select mt-1"
+            disabled={!!state.showEditModal}
           >
             {state.categoryList.map((category) => (
               <option key={category.id} value={category.id}>
@@ -154,31 +144,30 @@ function Income() {
               </option>
             ))}
           </select>
-          <label>Category</label>
         </div>
-        <div className="form-floating">
+        <div className="mb-2">
+          <label htmlFor="modalInputDate">Date</label>
           <DatePicker
             options={{
               autohide: true,
               language: 'en',
               format: 'dd-M-yyyy',
             }}
-            refInput={datepickerRef}
+            refInput={modalInputDate}
           >
-            <input id="dateInput" type="text" className="form-control mb-2" placeholder="Date" />
+            <input id="modalInputDate" type="text" className="form-control mt-1" />
           </DatePicker>
-          <label>Date</label>
         </div>
-        <div className="form-floating">
+        <div className="mb-2">
+          <label htmlFor="amountInput">Monthly Amount</label>
           <input
+            id="amountInput"
             type="number"
-            className="form-control mb-2"
+            className="form-control mt-1"
             value={state.amount}
             step="0.50"
             onChange={(event) => setState({ ...state, amount: event.target.value })}
-            placeholder="Monthly Amount"
           />
-          <label>Amount</label>
         </div>
       </form>
     );
@@ -204,47 +193,69 @@ function Income() {
     );
   }
 
+  function mainContent() {
+    if (!loaded.current) {
+      return <Loading />;
+    }
+
+    if (state.incomeList.length === 0) {
+      return <BlankStateIncome />;
+    }
+
+    return (
+      <>
+        <Table />
+        <DoughnutChart />
+      </>
+    );
+  }
+
   React.useEffect(() => {
-    (async () => {
-      const income = await loadIncome();
-      const categories = await loadIncomeCategories();
-      setState({
-        ...state,
-        incomeList: income,
-        categoryList: categories,
-        category: categories[0].id,
-      });
-    })();
+    /* Load data on datepicker change event */
+    incomeDate.current.datepicker.setDate(new Date());
   }, []);
 
   const values = React.useMemo(() => ({
     showModal,
     state,
     setState,
-    removeIncome,
-    datepickerRef,
+    modalInputDate,
+    incomeDate,
   }));
 
   return (
     <IncomeContext.Provider value={values}>
       <div className="row mb-4 g-3">
         <div className="col-12">
-          <h4 className="gray-1 m-0">Income</h4>
+          <div className="d-flex flex-column flex-sm-row justify-content-sm-between">
+            <div className="mb-2 mb-sm-0">
+              <button type="button" className="btn btn-primary" onClick={showModal}>
+                New Income
+              </button>
+            </div>
+            <div>
+              <DatePicker
+                options={{
+                  pickLevel: '1',
+                  autohide: true,
+                  language: 'en',
+                  format: 'MM yyyy',
+                }}
+                onChange={loadIncome}
+                refInput={incomeDate}
+              >
+                <input id="incomeDate" type="text" className="form-control" placeholder="Date" />
+              </DatePicker>
+            </div>
+          </div>
         </div>
-        {state.incomeList.length > 0 ? (
-          <>
-            <Table />
-            <DoughnutChart />
-          </>
-        ) : (
-          <BlankStateIncome />
-        )}
+        {mainContent()}
       </div>
       <Modal
         title={state.showEditModal ? 'Edit Income' : 'New Income'}
         content={modalContent()}
         cta={modalCTA()}
-        closeCallback={clearModalInput}
+        closeCallback={clearModalInputs}
       />
     </IncomeContext.Provider>
   );

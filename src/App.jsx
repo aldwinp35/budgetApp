@@ -10,7 +10,6 @@ import './assets/lib/axios';
 import './App.css';
 
 function App() {
-  console.log('app');
   const { toggleSidebar } = useProSidebar();
   const token = useAuthContext();
 
@@ -25,13 +24,12 @@ function App() {
       <div className="container">
         <div id="header" className="row my-3">
           <div className="col-12">
-            <div className="border rounded bg-light p-2 d-flex align-items-center justify-content-between">
-              <h5 className="mb-1">Header</h5>
+            <div className="d-flex align-items-center justify-content-end">
               {/* Toogle menu on mobile */}
               <button
                 type="button"
                 onClick={() => toggleSidebar()}
-                className="btn btn-primary d-xl-none"
+                className="btn btn-primary d-xl-none d-flex"
               >
                 <IoMenu className="fs-5" />
               </button>

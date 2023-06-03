@@ -39,11 +39,7 @@ function Balance() {
         <div className="progress" style={{ height: '10px' }}>
           <div
             style={{ width: `${updateBar()}%` }}
-            className={
-              updateBar() >= 80
-                ? 'progress-bar bg-danger rounded'
-                : 'progress-bar bg-primary rounded'
-            }
+            className="progress-bar bg-primary rounded"
             role="progressbar"
             aria-label="Basic example"
             aria-valuenow="75"
