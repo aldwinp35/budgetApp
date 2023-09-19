@@ -1,46 +1,40 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import XLSX from 'sheetjs-style-v2';
 import PropTypes from 'prop-types';
 import { TbTableExport } from 'react-icons/tb';
-import Tooltip from '../Tooltip';
+import ButtonCircle from '../util/ButtonCircle';
+import Context from '../../context/Context';
 
-function ExportExcel({ excelData, fileName }) {
-  const fileExtension = '.xlsx';
+ExportExcel.propTypes = {
+  filename: PropTypes.string.isRequired,
+};
 
-  async function exportToExcel() {
-    let data = excelData;
-    const wb = XLSX.utils.book_new();
-    if (typeof excelData === 'function') {
-      data = await excelData();
-    }
-    const ws = XLSX.utils.json_to_sheet(data);
-    XLSX.utils.book_append_sheet(wb, ws, 'sheet1');
-    XLSX.writeFile(wb, fileName + fileExtension);
-  }
+function ExportExcel({ filename }) {
+  const { data, keys } = useContext(Context);
 
   return (
-    <div
-      className="btn-circle"
-      role="button"
-      aria-expanded="false"
-      onClick={() => exportToExcel()}
-    >
-      <Tooltip text="Export Excel">
-        <span className="d-flex">
-          <TbTableExport className="fs-5" />
-        </span>
-      </Tooltip>
-    </div>
+    <ButtonCircle onClick={() => exportToExcel(data, keys, filename)}>
+      <TbTableExport className="fs-5" />
+    </ButtonCircle>
   );
 }
 
-ExportExcel.propTypes = {
-  fileName: PropTypes.string.isRequired,
-  excelData: PropTypes.oneOfType([PropTypes.arrayOf(Object), PropTypes.func]),
+const exportToExcel = async (data, keys, filename) => {
+  const fileExtension = '.xlsx';
+  const excelData = getExportData(data, keys);
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.json_to_sheet(excelData);
+  XLSX.utils.book_append_sheet(wb, ws, 'sheet1');
+  XLSX.writeFile(wb, filename + fileExtension);
 };
 
-ExportExcel.defaultProps = {
-  excelData: null,
+const getExportData = (data, keys) => {
+  return data.map((item) => {
+    const obj = {};
+    keys.forEach((key) => {
+      obj[key] = item[key];
+    });
+    return obj;
+  });
 };
-
 export default ExportExcel;

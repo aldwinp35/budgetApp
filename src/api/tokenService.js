@@ -1,6 +1,3 @@
-/* eslint-disable camelcase */
-/* eslint-disable no-unused-vars */
-/* eslint-disable no-console */
 import axios from 'axios';
 import jwt_decode from 'jwt-decode';
 import { getOptionRequest } from '../assets/lib/helpers';
@@ -72,6 +69,7 @@ const validateToken = () => {
         isValid = true;
       }
     } catch (error) {
+      console.error('Error trying to validate token.\n\n Details: ', error);
       isValid = false;
     }
   }
@@ -79,12 +77,10 @@ const validateToken = () => {
   return isValid;
 };
 
-const tokenService = {
+export const tokenService = {
   getToken,
   saveToken,
   removeToken,
   requestNewToken,
   validateToken,
 };
-
-export default tokenService;

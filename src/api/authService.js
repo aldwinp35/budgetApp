@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { redirect } from 'react-router-dom';
 import { getOptionRequest } from '../assets/lib/helpers';
-import tokenService from './tokenService';
+import { tokenService } from './tokenService';
 
 const config = getOptionRequest();
 
@@ -42,10 +42,8 @@ const register = (user) => {
   });
 };
 
-const authService = {
+export const authService = {
   login,
   logout,
   register,
 };
-
-export default authService;

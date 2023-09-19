@@ -1,0 +1,25 @@
+// Toggle global options
+// $enable-gradients: true;
+// $enable-shadows: true;
+// $offcanvas-box-shadow: 0 1rem 3rem rgba(0, 0, 0, .175);
+
+// Customize some defaults
+// $body-bg: #fff;
+// $border-radius: .4rem;
+
+// Customize buttons
+// $primary: #2a6df1;
+// $danger: #f05959;
+
+$body-color: #333;
+
+// :: BTN BORDER RADIUS ::
+// rounded small
+// $btn-border-radius: 0.18rem;
+// $btn-border-radius-sm: 0.16rem;
+
+// rounded pill
+// $btn-border-radius: 50rem;
+// $btn-border-radius-sm: 50rem;
+
+@import 'bootstrap-overrides.scss';

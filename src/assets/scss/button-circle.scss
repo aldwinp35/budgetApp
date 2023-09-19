@@ -1,0 +1,31 @@
+.btn-circle {
+  user-select: none;
+  height: 40px;
+  width: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  &:hover {
+    opacity: 0.87;
+    background-color: rgba(95, 99, 104, 0.157);
+  }
+
+  &.circle-sm {
+    height: 32px;
+    width: 32px;
+  }
+
+  &.circle-fill {
+    background-color: rgba(95, 99, 104, 0.157);
+  }
+
+  &.disabled {
+    pointer-events: none;
+    opacity: 0.2;
+    cursor: default;
+    &:hover {
+      background-color: transparent;
+    }
+  }
+}

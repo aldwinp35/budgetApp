@@ -1,44 +1,84 @@
-import React from 'react';
-import Modal from './Modal';
-import BudgetSection from './BudgetSection';
-import Balance from './Balance';
-import BudgetContext from '../../context/BudgetContext';
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useMemo,
+  useRef,
+} from 'react';
+
+import Loading from '../util/Loading';
+import ManageCategoryModal from './ManageCategoryModal';
+import AddCategoryModal from './AddCategoryModal';
 import ManageBudget from './ManageBudget';
+import Balance from './Balance';
+import BudgetSection from './BudgetSection';
+import Context from '../../context/Context';
 import './budget.css';
 
 function Budget() {
-  const datePicker = React.useRef();
-  const modalManageCategory = React.useRef();
-  const [state, setState] = React.useState({
-    budgets: [],
+  const [state, setState] = useState({
+    budgets: null,
     expenses: 0,
     income: 0,
-    remaining_balance: 0,
+    remainingBalance: 0,
+    modalManageCategory: false,
+    modalAddCategory: false,
   });
 
-  // Set current date to loads data
-  React.useEffect(() => {
-    datePicker.current.datepicker.setDate(new Date());
-  }, []);
+  const filterDate = useRef(null);
 
-  const value = React.useMemo(() => ({
-    datePicker,
-    modalManageCategory,
+  // Sort budgets in alphabetical order when the list is updated
+  useEffect(() => {
+    setState((state) => ({
+      ...state,
+      budgets: state.budgets?.sort((a, b) => (a.name > b.name ? 1 : -1)),
+    }));
+  }, [state.budgets]);
+
+  // Add category
+  const toggleAddCategoryModal = useCallback(
+    () =>
+      setState((state) => ({
+        ...state,
+        modalAddCategory: !state.modalAddCategory,
+      })),
+    []
+  );
+
+  // Manage category
+  const toggleManageCategoryModal = useCallback(
+    () =>
+      setState((state) => ({
+        ...state,
+        modalManageCategory: !state.modalManageCategory,
+      })),
+    []
+  );
+
+  const value = useMemo(() => ({
+    filterDate,
     state,
     setState,
+    toggleAddCategoryModal,
+    toggleManageCategoryModal,
   }));
 
   return (
-    <BudgetContext.Provider value={value}>
-      <div className="row gap-3 mb-3">
+    <Context.Provider value={value}>
+      <div className="row mb-3 gap-3">
         <ManageBudget />
-        {/* <Balance /> */}
-        {state.budgets?.map((budget) => (
-          <BudgetSection key={budget.id} budget={budget} />
-        ))}
+        <Balance />
+
+        {!state.budgets && <Loading color="secondary" />}
+
+        {state.budgets &&
+          state.budgets.map((budget) => (
+            <BudgetSection key={budget.id} budget={budget} />
+          ))}
       </div>
-      <Modal />
-    </BudgetContext.Provider>
+      <ManageCategoryModal />
+      <AddCategoryModal />
+    </Context.Provider>
   );
 }
 

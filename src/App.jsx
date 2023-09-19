@@ -1,42 +1,71 @@
 /* eslint-disable no-console */
-import React from 'react';
-import { Outlet } from 'react-router-dom';
+import React, { useState } from 'react';
+// import { Util } from 'reactstrap';
+import { Button } from 'reactstrap';
+import { Outlet, useLocation } from 'react-router-dom';
 import { IoMenu } from 'react-icons/io5';
-import { useProSidebar } from 'react-pro-sidebar';
+
 import { useAuthContext } from './context/AuthContext';
 import Login from './components/auth/Login';
 import Sidebar from './components/sidebar/MySidebar';
+import { Alert } from './components/util/Alert';
+// import useWindowWidth from './components/util/useWindowWidth';
 import './assets/lib/axios';
 import './App.css';
 
 function App() {
-  const { toggleSidebar } = useProSidebar();
+  // Get authentication token
   const token = useAuthContext();
+  const { pathname } = useLocation();
+  // const screenWidth = useWindowWidth();
+
+  // Sidebar toggle status
+  const [toggled, setToggle] = useState(false);
+  const page =
+    pathname.slice(1).charAt(0).toLocaleUpperCase() + pathname.slice(2);
+
+  // Render small buttons and input on phone and tablets
+  // React.useEffect(() => {
+  //   Util.setGlobalCssModule({
+  //     btn: screenWidth <= 768 ? 'btn btn-sm' : 'btn',
+  //     'form-control':
+  //       screenWidth <= 768 ? 'form-control form-control-sm' : 'form-control',
+  //     'form-select':
+  //       screenWidth <= 768 ? 'form-select form-select-sm' : 'form-select',
+  //   });
+  // }, [screenWidth]);
 
   if (!token.isValid) {
+    // Redirect to login
     window.history.replaceState(null, '', '/login');
     return <Login />;
   }
 
   return (
     <div id="app">
-      <Sidebar />
-      <div className="container">
-        <div id="header" className="row my-3">
-          <div className="col-12">
-            <div className="d-flex align-items-center justify-content-end">
-              {/* Toogle menu on mobile */}
-              <button
-                type="button"
-                onClick={() => toggleSidebar()}
-                className="btn btn-primary d-xl-none d-flex"
-              >
-                <IoMenu className="fs-5" />
-              </button>
+      <Sidebar toggled={toggled} setToggle={setToggle} />
+
+      <div className="d-flex flex-column w-100">
+        <div className="container my-3">
+          <div className="row">
+            <div className="col-12">
+              <div className="d-flex justify-content-between align-items-center">
+                <h1 className="fs-5 fw-semibold">{page}</h1>
+                <Button
+                  outline
+                  onClick={() => setToggle(!toggled)}
+                  className="d-xl-none d-flex"
+                >
+                  <IoMenu className="fs-5" />
+                </Button>
+              </div>
             </div>
           </div>
         </div>
-        <Outlet />
+        <div className="container">
+          <Alert />
+          <Outlet />
+        </div>
       </div>
     </div>
   );

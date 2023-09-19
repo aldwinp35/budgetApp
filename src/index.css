@@ -9,6 +9,7 @@ body,
 body {
   background-color: #f6f6f7;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-weight: 400;
 }
 
 #app {
@@ -40,6 +41,7 @@ p {
 .section {
   background-color: #fff;
   padding: 15px;
+  min-height: 250px;
   border-radius: 10px;
   border: 1px #ddd solid;
   box-shadow: 0 3px 6px 1px rgba(0, 0, 0, 0.1);
@@ -82,42 +84,6 @@ p {
   box-shadow: 0 0 2px 1px rgba(0, 0, 0, 0.1);
 }
 
-.btn-circle {
-  user-select: none;
-  height: 32px;
-  width: 32px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border-radius: 50%;
-}
-
-.btn-circle:hover {
-  opacity: 0.87;
-  background-color: rgba(95, 99, 104, 0.157);
-}
-
-.btn-circle-fill {
-  user-select: none;
-  height: 32px;
-  width: 32px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border-radius: 50%;
-  opacity: 0.87;
-  background-color: rgba(95, 99, 104, 0.157);
-}
-
-.btn-circle.disabled {
-  opacity: 0.2;
-  cursor: default;
-}
-
-.btn-circle.disabled:hover {
-  background-color: transparent;
-}
-
 /* Bootstrap overrides */
 .table {
   --bs-table-hover-bg: rgb(248, 249, 250, 0.5);
@@ -157,16 +123,50 @@ p {
   width: fit-content;
 }
 
-.mw-200 {
+.max-width-200 {
   max-width: 200px;
 }
 
-.mw-300 {
+.max-width-300 {
   max-width: 300px;
+}
+
+.min-height-800 {
+  min-height: 800px;
 }
 
 .pointer {
   cursor: pointer;
+}
+
+.green-dot {
+  margin-right: 3px;
+  height: 5px;
+  width: 5px;
+  background-color: #04aa6d;
+  border-radius: 50%;
+  display: inline-block;
+  /* box-shadow: 0 0 1px 1px #04aa6d; */
+}
+
+.orange-dot {
+  margin-right: 3px;
+  height: 5px;
+  width: 5px;
+  background-color: orange;
+  border-radius: 50%;
+  display: inline-block;
+  /* box-shadow: 0 0 1px 1px #04aa6d; */
+}
+
+.red-dot {
+  margin-right: 3px;
+  height: 5px;
+  width: 5px;
+  background-color: #fd583b;
+  border-radius: 50%;
+  display: inline-block;
+  /* box-shadow: 0 0 1px 1px #04aa6d; */
 }
 
 /* @media (max-width: 360px) {

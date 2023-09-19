@@ -1,11 +1,12 @@
 import axios from 'axios';
-import tokenService from '../../api/tokenService';
+import { tokenService } from '../../api';
 import { clientBaseUrl } from './helpers';
 
 const baseURL = clientBaseUrl;
 
 axios.interceptors.request.use(
   // Do something before request is sent
+
   (config) => {
     if (config.url !== '/token/') {
       const isValid = tokenService.validateToken();
@@ -27,11 +28,11 @@ axios.interceptors.response.use(
   // Any status code that lie within the range of 2xx cause this function to trigger
   // Do something with response data
   (response) => response,
+
   // Any status codes that falls outside the range of 2xx cause this function to trigger
   // Do something with response error
   (error) => {
     if (error.code === 'ERR_NETWORK') {
-      // eslint-disable-next-line no-alert
       alert(
         "Could'nt connect with the server. Please check your internet connection or contact administrator."
       );

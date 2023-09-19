@@ -1,8 +1,8 @@
 /* eslint-disable comma-dangle */
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { ProSidebarProvider } from 'react-pro-sidebar';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+
 import App from './App';
 import ErrorPage from './error-page';
 import Income from './components/income/Income';
@@ -12,7 +12,7 @@ import Budget from './components/budget/Budget';
 import Expenses from './components/expenses/Expenses';
 import Setting from './components/Setting';
 import { AuthProvider } from './context/AuthContext';
-import '../scss/styles.scss';
+import './assets/scss/styles.scss';
 import './index.css';
 
 const router = createBrowserRouter([
@@ -51,10 +51,8 @@ const router = createBrowserRouter([
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <ProSidebarProvider>
-      <AuthProvider>
-        <RouterProvider router={router} />
-      </AuthProvider>
-    </ProSidebarProvider>
+    <AuthProvider>
+      <RouterProvider router={router} />
+    </AuthProvider>
   </React.StrictMode>
 );

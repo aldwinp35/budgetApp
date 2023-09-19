@@ -1,82 +1,167 @@
-/* eslint-disable object-curly-newline */
-/* eslint-disable operator-linebreak */
-import React from 'react';
-import { Modal as BSModal } from 'bootstrap';
-import { CiCalendar } from 'react-icons/ci';
-import DatePicker from '../DatePicker';
-import budgetService from '../../api/budgetService';
-import BudgetContext from '../../context/BudgetContext';
+import React, {
+  useState,
+  useRef,
+  useEffect,
+  useCallback,
+  useContext,
+} from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
+import { Button, Input, InputGroup, InputGroupText } from 'reactstrap';
+import { BsCalendar } from 'react-icons/bs';
+
+import DatepickerComponent from '../util/DatepickerComponent';
+import Context from '../../context/Context';
+import { handleErrorResponse } from '../../assets/lib/helpers';
+import { ExpenseMarker, IncomeMarker } from '../util/Marker';
+import { budgetService } from '../../api';
 
 function ManageBudget() {
-  const { state, setState, datePicker, modalManageCategory } = React.useContext(BudgetContext);
 
-  function showHidePicker() {
-    if (!datePicker.current.datepicker.active) {
-      datePicker.current.datepicker.show();
-    } else datePicker.current.datepicker.hide();
-  }
+  const datepicker = useRef(null);
+  const [startDate, setStartDate] = useState(new Date());
+  const { filterDate, state, setState, toggleManageCategoryModal } =
+  useContext(Context);
+  console.log('state: ', state)
 
-  function showModal() {
-    const bsModal = new BSModal(modalManageCategory.current, {
-      backdrop: 'static',
-      keyboard: false,
-    });
-    bsModal.show();
-  }
+  const Test = ({ month }) => {
+    return (
+      <div className="d-flex flex-column">
+        <div>{month}</div>
+        <div className="d-flex justify-content-center">
+          {/* <span className="green-dot"></span> */}
+          <IncomeMarker />
+          {/* <span className="orange-dot"></span> */}
+          <ExpenseMarker />
+          <span className="red-dot"></span>
+        </div>
+      </div>
+    );
+  };
 
-  async function loadBudgets() {
-    const month = datePicker.current.datepicker.getDate('mm');
-    const year = datePicker.current.datepicker.getDate('yyyy');
-    const balanceResponse = await budgetService.getBalance(month, year);
-    const budgetResponse = await budgetService.getBudgetCategories(month, year);
-    setState({
-      ...state,
-      budgets: budgetResponse.data.results,
-      expenses: balanceResponse.data.expenses,
-      income: balanceResponse.data.income,
-      remaining_balance: balanceResponse.data.balance,
-    });
-  }
+  // Datepicker marker for months.
+  const beforeShowMonth = useCallback((date, budgetDates) => {
+    const yearAndMonth = date.toISOString().substring(0, 7);
+    if (budgetDates.indexOf(yearAndMonth) !== -1) {
+      const monthDate = new Date(date).toLocaleDateString('en-US', {
+        month: 'short',
+      });
+
+      console.log('before show month')
+
+      return {
+        content: renderToStaticMarkup(<Test month={monthDate} />),
+        // content: `
+        //         <div class="d-flex flex-column">
+        //           <div>${monthDate}</div>
+        //           <div class="d-flex justify-content-center">
+        //             <span class="green-dot"></span>
+        //             <span class="orange-dot"></span>
+        //             <span class="red-dot"></span>
+        //           </div>
+        //         </div>
+        //           `,
+      };
+    }
+  }, [state.budgets]);
+
+  // Datepicker marker for years.
+  const beforeShowYear = useCallback((date, budgetDates) => {
+    const year = date.getFullYear();
+    const years = budgetDates.map((x) => Number(x.substring(0, 4)));
+    if (years.indexOf(year) !== -1) {
+      return {
+        content: `
+                  <div class="d-flex flex-column">
+                    <div>${year}</div>
+                    <div class="d-flex justify-content-center">
+                      <span class="green-dot"></span>
+                      <span class="orange-dot"></span>
+                      <span class="red-dot"></span>
+                    </div>
+                  </div>
+                  `,
+      };
+    }
+  }, [state.budgets]);
+
+  // Get budget categories on the selectd date.
+  const getBudget = useCallback(async (e) => {
+    setStartDate(e.target.value);
+
+    // Get datepicker date
+    const month = e.detail.date.getMonth() + 1;
+    const year = e.detail.date.getFullYear();
+
+    try {
+      const res = await budgetService.getByMonthAndYear(month, year);
+      const { results, expenses, income, balance } = res.data;
+
+      setState((state) => ({
+        ...state,
+        budgets: results,
+        expenses: expenses,
+        income: income,
+        remainingBalance: balance,
+      }));
+    } catch (error) {
+      handleErrorResponse(error);
+    }
+  }, []);
+
+  // Datepicker data marker.
+  useEffect(() => {
+    budgetService
+      .getBudgetDates()
+      .then((res) => {
+        if (res.status) {
+          datepicker.current.setOptions({
+            beforeShowMonth: (date) => beforeShowMonth(date, res.data.results),
+            beforeShowYear: (date) => beforeShowYear(date, res.data.results),
+          });
+        }
+      })
+      .catch(handleErrorResponse);
+  }, [state.budgets]);
+
   return (
     <div className="col-12">
-      <div className="d-sm-flex justify-content-sm-between">
-        <div className="mb-2 mb-sm-0">
-          <button onClick={showModal} className="btn btn-primary" type="button">
-            Manage Categories
-          </button>
-        </div>
-        <div className="position-relative">
-          <DatePicker
-            refInput={datePicker}
-            options={{
-              pickLevel: '1',
-              autohide: true,
-              format: 'MM yyyy',
-              buttonClass: 'btn',
-              showOnClick: false,
-              showOnFocus: false,
-              beforeShowMonth(date) {
-                switch (date.getMonth()) {
-                  case 6:
-                    if (date.getFullYear() === new Date().getFullYear()) {
-                      return { content: '🔹' };
-                    }
-                    break;
-                  case 8:
-                    return 'highlighted';
-                }
-              },
-            }}
-            onChange={() => loadBudgets()}
-          >
-            <input type="text" className="form-control" />
-          </DatePicker>
-          <CiCalendar
-            onClick={() => showHidePicker()}
-            role="button"
-            className="fs-4"
-            style={{ position: 'absolute', top: '6px', right: '5px' }}
-          />
+      <div className="d-flex flex-column flex-sm-row justify-content-between">
+        <Button
+          onClick={toggleManageCategoryModal}
+          color="primary"
+          className="mb-2 mb-sm-0"
+        >
+          Add categories
+        </Button>
+        <div>
+          <InputGroup>
+            <DatepickerComponent
+              inputRef={datepicker}
+              customInput={<Input />}
+              autohide={true}
+              pickLevel="1"
+              selected={startDate}
+              format="MM yyyy"
+              className="form-control"
+              placeholder="Select month"
+              onChangeDate={(e) => {
+                filterDate.current = e.detail.date;
+
+                getBudget(e);
+              }}
+              onShow={() => console.log('showing')}
+              showOnClick={false}
+              showOnFocus={false}
+            />
+            <InputGroupText
+              onClick={() => {
+                datepicker.current.toggle();
+              }}
+              role="button"
+            >
+              <BsCalendar />
+            </InputGroupText>
+          </InputGroup>
         </div>
       </div>
     </div>

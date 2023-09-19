@@ -9,6 +9,11 @@ export default defineConfig({
   resolve: {
     alias: {
       '~bootstrap': path.resolve(__dirname, './node_modules/bootstrap'),
+      'styled-components': path.resolve(
+        __dirname,
+        'node_modules',
+        'styled-components'
+      ),
     },
   },
 });

@@ -1,83 +1,30 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
-import Context from './Context';
-import { toTitleCase } from './helpers';
+import Context from '../../context/Context';
 
-function Headers() {
-  const { keys } = React.useContext(Context);
-  // Make sure keys are set
-  if (!keys) {
-    return null;
-  }
-
-  return keys.map((key, index) => (
-    <th className="fw-semibold" key={index}>
-      {toTitleCase(key)}
-    </th>
-  ));
-}
-
-function Rows() {
-  const { keys, data, firstPageIndex, lastPageIndex } =
-    React.useContext(Context);
-
-  // Make sure keys are set
-  // No need to check for data,
-  //  already checked in DataTable component
-  if (!keys) {
-    return null;
-  }
-
-  return data.slice(firstPageIndex, lastPageIndex).map((item, index) => (
-    <tr key={index}>
-      {keys.map((key, i) => (
-        <td key={i}>{item[key]}</td>
-      ))}
-    </tr>
-  ));
-}
-
-function PrintView(props, ref) {
-  const { keys } = React.useContext(Context);
-  const { documentTitle, logoText, logoImageUrl } = props;
-  if (!keys) {
-    return null;
-  }
+// eslint-disable-next-line react/prop-types
+function PrintView({ title, header }, ref) {
+  const { data, keys, columnNames: columns } = useContext(Context);
 
   return (
     <div ref={ref} className="p-3">
-      {/* Company logo & document title */}
+      {/* Document header */}
       <div style={{ marginBottom: '50px', marginTop: '20px' }}>
-        {logoText ? (
-          <div className="fs-5 fw-semibold text-center text-secondary">
-            {logoText}
-          </div>
-        ) : null}
-
-        {logoImageUrl ? (
-          <img
-            style={{ maxWidth: '90px', maxHeight: '90px' }}
-            src={logoImageUrl}
-            alt="logo"
-          />
-        ) : null}
+        {header ? <div>{header}</div> : null}
       </div>
 
-      {documentTitle ? (
-        <div className="fs-6 fw-semibold mb-3">{documentTitle}</div>
-      ) : null}
+      {/* Document title */}
+      {title ? <div>{title}</div> : null}
 
       {/* Render data */}
-      <table className="table table-bordered">
+      <table className="table table-sm table-bordered">
         <thead>
           <tr>
-            {/* Render each key as header (th) */}
-            <Headers />
+            <Headers columns={columns} />
           </tr>
         </thead>
         <tbody>
-          {/* Render each data object as row (tr) */}
-          <Rows />
+          <Rows keys={keys} data={data} />
         </tbody>
       </table>
     </div>
@@ -85,17 +32,31 @@ function PrintView(props, ref) {
 }
 
 const PrintViewRef = React.forwardRef(PrintView);
-
-PrintView.propTypes = {
-  documentTitle: PropTypes.string,
-  logoText: PropTypes.string,
-  logoImageUrl: PropTypes.string,
-};
-
-PrintView.defaultProps = {
-  documentTitle: null,
-  logoText: null,
-  logoImageUrl: null,
-};
-
 export default PrintViewRef;
+
+Headers.propTypes = {
+  columns: PropTypes.arrayOf(String).isRequired,
+};
+
+function Headers({ columns }) {
+  return columns.map((col, index) => (
+    <td className="fw-semibold" key={index}>
+      {col}
+    </td>
+  ));
+}
+
+Rows.propTypes = {
+  data: PropTypes.arrayOf(Object).isRequired,
+  keys: PropTypes.arrayOf(String).isRequired,
+};
+
+function Rows({ keys, data }) {
+  return data.map((item, index) => (
+    <tr key={index}>
+      {keys.map((key, i) => (
+        <td key={i}>{item[key]}</td>
+      ))}
+    </tr>
+  ));
+}

@@ -1,10 +1,8 @@
-/* eslint-disable no-console */
-/* eslint-disable jsx-a11y/label-has-associated-control */
 import React from 'react';
 // import PropTypes from 'prop-types';
 import { useNavigate } from 'react-router-dom';
 import { useAuthContext } from '../../context/AuthContext';
-import authService from '../../api/authService';
+import { authService } from '../../api';
 
 function Login() {
   const [username, setUserName] = React.useState();
