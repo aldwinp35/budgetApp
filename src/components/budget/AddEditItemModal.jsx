@@ -29,6 +29,7 @@ function AddEditItemModal() {
   const { filterDate, state, setState, toggleAddEditModal, budget } =
     useContext(Context);
 
+    
   const isAddMode = !state.itemToEdit;
 
   const {
@@ -151,7 +152,7 @@ function AddEditItemModal() {
                   <option value="" disabled>
                     Select...
                   </option>
-                  {state.categoryList.map((category) => (
+                  {state.itemCategoryList.map((category) => (
                     <option key={category.id} value={category.id}>
                       {category.name}
                     </option>
@@ -258,9 +259,9 @@ function AddEditItemModal() {
 //   modal: PropTypes.bool.isRequired,
 //   toggleModal: PropTypes.func.isRequired,
 //   itemList: PropTypes.arrayOf(Object).isRequired,
-//   setitemList: PropTypes.func.isRequired,
-//   categoryList: PropTypes.arrayOf(Object).isRequired,
-//   setCategoryList: PropTypes.func.isRequired,
+//   setItemList: PropTypes.func.isRequired,
+//   itemCategoryList: PropTypes.arrayOf(Object).isRequired,
+//   setItemCategoryList: PropTypes.func.isRequired,
 //   itemToEdit: PropTypes.object,
 //   setItemToEdit: PropTypes.func,
 // };

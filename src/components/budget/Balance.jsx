@@ -1,13 +1,13 @@
 import React from 'react';
 import { IoWarningOutline } from 'react-icons/io5';
-
-import { ExpenseMarker, IncomeMarker } from '../util/Marker';
+import { Link } from 'react-router-dom';
+import { Red, Green } from '../util/Markers';
 import { toMoney } from '../../assets/lib/helpers';
 import Context from '../../context/Context';
 import Tooltip from '../util/Tooltip';
 
 function Balance() {
-  const { state } = React.useContext(Context);
+  const { state, filterDate } = React.useContext(Context);
 
   const updateBar = React.useCallback(() => {
     // Get remaining income
@@ -23,25 +23,29 @@ function Balance() {
           <tbody>
             <tr>
               <td className="pe-4 d-flex align-items-center">
-                <IncomeMarker /> Income
+                <Green /> Income
               </td>
               <td className="text-end">
                 {state.income === 0 ? (
-                  <span className="text-danger pointer">
+                  <Link
+                    to="/income"
+                    state={{ dpDate: filterDate.current }}
+                    className="text-danger"
+                  >
                     <Tooltip
                       text="You have no income on this date. Please add income before adding items."
                       placement="bottom"
                     >
                       <IoWarningOutline className="fs-5 me-1" />
                     </Tooltip>
-                  </span>
+                  </Link>
                 ) : null}
                 {toMoney(state.income)}
               </td>
             </tr>
             <tr>
               <td className="pe-4 d-flex align-items-center">
-                <ExpenseMarker /> Expenses
+                <Red /> Expenses
               </td>
               <td className="text-end">{toMoney(state.expenses)}</td>
             </tr>

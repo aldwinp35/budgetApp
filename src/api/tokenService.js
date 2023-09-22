@@ -25,7 +25,6 @@ const getToken = () => {
 const saveToken = (token) => {
   const strToken = JSON.stringify(token);
   localStorage.setItem('token', strToken);
-  console.log('token saved');
 };
 
 /**

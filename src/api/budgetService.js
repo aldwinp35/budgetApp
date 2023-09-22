@@ -42,35 +42,6 @@ function remove(id) {
 }
 
 /**
- * Search budget categories by name.
- */
-function searchByName(name) {
-  return axios.get(`${pathname}/?name=${name}`, config);
-}
-
-/**
- * Get the remaining balance based on the monthly income and expenses.
- * @param {number} month a number between 1 - 12.
- * @param {number} year a four digit number, e.g: 2023
- */
-function getBalance(month, year) {
-  return axios.get(`/balance/?month=${month}&year=${year}`, config);
-}
-
-/**
- * Get the dates where the data is present.
- */
-// getBudgetDates()
-// getIncomeDates()
-// /api/data-dates/
-// /api/data-date/type=income (green)
-// /api/data-date/type=budget (orange)
-// /api/data-date/type=expense (red)
-function getBudgetDates() {
-  return axios.get(`dates-with-data?type=budget`, config);
-}
-
-/**
  * Get all budget items.
  */
 function getAllItem() {
@@ -140,27 +111,58 @@ function removeItemCategory(id) {
   return axios.delete(`item-category/${id}/`, config);
 }
 
+/**
+ * Search budget categories by name.
+ */
+function searchByName(name) {
+  return axios.get(`${pathname}/?name=${name}`, config);
+}
+
+/**
+ * Get the remaining balance based on the monthly income and expenses.
+ * @param {number} month a number between 1 - 12.
+ * @param {number} year a four digit number, e.g: 2023
+ */
+function getBalance(month, year) {
+  return axios.get(`/balance/?month=${month}&year=${year}`, config);
+}
+
+/**
+ * Get all dates (income, budget, expense).
+ */
+function getDates() {
+  return axios.get('data-dates/', config);
+}
+
+/**
+ * Get all budget item dates.
+ */
+function getBudgetDates() {
+  return axios.get('data-dates/?type=budget', config);
+}
+
 export const budgetService = {
-  // Budget Categories
+  // budget categories
   getAll,
   getByMonthAndYear,
   create,
   update,
   remove,
-  // Budget Items
+  // budget items
   getAllItem,
   getItemByBudgetId,
   createItem,
   updateItem,
   removeItem,
-  // Item Categories
+  // item categories
   getAllItemCategory,
   getItemCategoryByBudgetId,
   createItemCategory,
   updateItemCategory,
   removeItemCategory,
-  // Other
-  getBudgetDates,
+  // other
   searchByName,
   getBalance,
+  getDates,
+  getBudgetDates,
 };

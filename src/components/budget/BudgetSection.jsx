@@ -32,26 +32,41 @@ BudgetSection.propTypes = {
 };
 
 function BudgetSection({ budget }) {
+  const context = useContext(Context);
+
   const [state, setState] = useState({
+    ...context.state,
     itemList: budget.items,
-    categoryList: null,
+    itemCategoryList: null,
     itemToEdit: null,
     modalAddEdit: false,
   });
 
-  const { filterDate } = useContext(Context);
-
+  // Get item categories
   useEffect(() => {
     budgetService.getItemCategoryByBudgetId(budget.id).then((res) => {
       if (res.status === 200) {
-        setState((state) => ({ ...state, categoryList: res.data.results }));
+        setState((state) => ({
+          ...state,
+          itemCategoryList: res.data.results,
+        }));
       }
     });
   }, []);
 
+  // Keep budgetList items updated
   useEffect(() => {
-    setState((state) => ({ ...state, itemList: budget.items }));
-  }, [budget.items]);
+    context.setState((st) => ({
+      ...st,
+      budgetList: st.budgetList.map((x) => {
+        if (x.id === budget.id) {
+          x.items = state.itemList;
+        }
+
+        return x;
+      }),
+    }));
+  }, [state.itemList]);
 
   // Add category
   const toggleAddEditModal = useCallback(
@@ -187,7 +202,7 @@ function BudgetSection({ budget }) {
     state,
     setState,
     toggleAddEditModal,
-    filterDate,
+    filterDate: context.filterDate,
     budget,
   }));
 

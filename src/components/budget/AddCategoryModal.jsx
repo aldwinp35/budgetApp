@@ -44,7 +44,7 @@ function AddCategoryModal() {
       if (response.status === 201) {
         setState((state) => ({
           ...state,
-          budgets: [...state.budgets, response.data],
+          budgetList: [...state.budgetList, response.data],
         }));
         alertService.info('Category added');
         toggleAddCategoryModal();

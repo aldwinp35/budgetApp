@@ -17,7 +17,7 @@ import './budget.css';
 
 function Budget() {
   const [state, setState] = useState({
-    budgets: null,
+    budgetList: null,
     expenses: 0,
     income: 0,
     remainingBalance: 0,
@@ -31,9 +31,9 @@ function Budget() {
   useEffect(() => {
     setState((state) => ({
       ...state,
-      budgets: state.budgets?.sort((a, b) => (a.name > b.name ? 1 : -1)),
+      budgetList: state.budgetList?.sort((a, b) => (a.name > b.name ? 1 : -1)),
     }));
-  }, [state.budgets]);
+  }, [state.budgetList]);
 
   // Add category
   const toggleAddCategoryModal = useCallback(
@@ -69,10 +69,10 @@ function Budget() {
         <ManageBudget />
         <Balance />
 
-        {!state.budgets && <Loading color="secondary" />}
+        {!state.budgetList && <Loading color="secondary" />}
 
-        {state.budgets &&
-          state.budgets.map((budget) => (
+        {state.budgetList &&
+          state.budgetList.map((budget) => (
             <BudgetSection key={budget.id} budget={budget} />
           ))}
       </div>

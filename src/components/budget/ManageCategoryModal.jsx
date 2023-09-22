@@ -21,12 +21,12 @@ function ManageCategoryModal() {
   useEffect(() => {
     const result =
       filterText.length > 0
-        ? state.budgets?.filter(({ name }) =>
+        ? state.budgetList?.filter(({ name }) =>
             name.toLowerCase().includes(filterText.toLowerCase())
           )
-        : state.budgets;
+        : state.budgetList;
     setfFilteredData(result);
-  }, [filterText, state.budgets]);
+  }, [filterText, state.budgetList]);
 
   return (
     <Modal

@@ -1,7 +1,16 @@
-// import React from 'react';
 import styled from 'styled-components';
 
-export const ExpenseMarker = styled.div`
+// Dots
+export const Green = styled.div`
+  height: 5px;
+  width: 5px;
+  margin-right: 4px;
+  background-color: #04aa6d;
+  border-radius: 50%;
+  display: inline-block;
+`;
+
+export const Orange = styled.div`
   height: 5px;
   width: 5px;
   margin-right: 4px;
@@ -10,18 +19,11 @@ export const ExpenseMarker = styled.div`
   display: inline-block;
 `;
 
-export const IncomeMarker = styled.div`
+export const Red = styled.div`
   height: 5px;
   width: 5px;
   margin-right: 4px;
-  background-color: #04aa6d;
+  background-color: red;
   border-radius: 50%;
   display: inline-block;
 `;
-// export function Dot() {
-//   return (
-//     <div className="position-relative">
-//       <Div />
-//     </div>
-//   );
-// }

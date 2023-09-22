@@ -95,6 +95,10 @@ function removeCategory(id) {
   return axios.delete(`${pathname}-category/${id}/`, config);
 }
 
+function getIncomeDates() {
+  return axios.get('data-dates/?type=income', config);
+}
+
 export const incomeService = {
   // incomes
   getAll,
@@ -110,4 +114,6 @@ export const incomeService = {
   createCategory,
   updateCategory,
   removeCategory,
+  // other
+  getIncomeDates,
 };

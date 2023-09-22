@@ -5,7 +5,7 @@ import React, {
   useMemo,
   useRef,
 } from 'react';
-
+import { useLocation } from 'react-router-dom';
 import Loading from '../util/Loading';
 import ManageIncome from './ManageIncome';
 import ManageCategoryModal from './ManageCategoryModal';
@@ -17,7 +17,6 @@ import DoughnutChart from './DoughnutChart';
 import Context from '../../context/Context';
 
 function Income() {
-  const datePicker = React.useRef(null);
   const [state, setState] = useState({
     incomeList: null,
     categoryList: null,
@@ -30,7 +29,12 @@ function Income() {
     loading: false,
   });
 
-  const filterDate = useRef(null);
+  // LocationState could have a filterDate that
+  //  is passed throug when the Link "add income warning icon" is clicked
+  //  on the budget page
+  const { state: locationState } = useLocation();
+  const filterDate = useRef(locationState?.dpDate || null);
+  const datePicker = React.useRef(null);
 
   // Sort categories in alphabetical order when the list is updated
   useEffect(() => {

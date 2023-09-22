@@ -41,7 +41,7 @@ function ShowOrEditCategories({ id, category }) {
       if (res.status === 200) {
         setState((state) => ({
           ...state,
-          budgets: state.budgets.map((x) => {
+          budgetList: state.budgetList.map((x) => {
             if (x.id === id) return { ...x, name: res.data.name };
             return x;
           }),
@@ -67,7 +67,7 @@ function ShowOrEditCategories({ id, category }) {
       if (res.status === 204) {
         setState((state) => ({
           ...state,
-          budgets: state.budgets.filter((x) => x.id !== id),
+          budgetList: state.budgetList.filter((x) => x.id !== id),
         }));
 
         alertService.info('Category deleted');
