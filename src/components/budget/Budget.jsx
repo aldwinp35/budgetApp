@@ -17,12 +17,14 @@ import './budget.css';
 
 function Budget() {
   const [state, setState] = useState({
-    budgetList: null,
     expenses: 0,
     income: 0,
+    planned: 0,
     remainingBalance: 0,
-    modalManageCategory: false,
+    budgetList: null,
+    itemToEdit: null,
     modalAddCategory: false,
+    modalManageCategory: false,
   });
 
   const filterDate = useRef(null);
@@ -70,14 +72,14 @@ function Budget() {
         <Balance />
 
         {!state.budgetList && <Loading color="secondary" />}
-
         {state.budgetList &&
           state.budgetList.map((budget) => (
             <BudgetSection key={budget.id} budget={budget} />
           ))}
       </div>
-      <ManageCategoryModal />
+
       <AddCategoryModal />
+      <ManageCategoryModal />
     </Context.Provider>
   );
 }

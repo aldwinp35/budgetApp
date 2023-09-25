@@ -44,7 +44,7 @@ function ManageCategoryModal() {
       </ModalHeader>
       <div className="body-header px-3 border-bottom">
         <p className="text-secondary fs-6 fw-normal mb-3">
-          Add, edit or even delete your categories.
+          Manage your income categories.
         </p>
         <FormGroup>
           <Input

@@ -25,11 +25,16 @@ import Context from '../../context/Context';
 
 import { budgetService, alertService } from '../../api';
 
-function AddEditItemModal() {
-  const { filterDate, state, setState, toggleAddEditModal, budget } =
-    useContext(Context);
+function AddEditItemModal({
+  budget,
+  itemList,
+  setItemList,
+  categoryList,
+  modalAddEdit,
+  toggleAddEditModal,
+}) {
+  const { filterDate, state, setState } = useContext(Context);
 
-    
   const isAddMode = !state.itemToEdit;
 
   const {
@@ -54,18 +59,30 @@ function AddEditItemModal() {
       try {
         const response = await budgetService.createItem(data);
         if (response.status === 201) {
+          const newItems = [...itemList, response.data];
+          setItemList(newItems);
           setState((state) => ({
             ...state,
-            itemList: [...state.itemList, response.data],
+            budgetList: state.budgetList.map((b) => {
+              if (b.id === budget.id) b.items = newItems;
+              return b;
+            }),
           }));
           toggleAddEditModal();
           alertService.info(`${budget.name} item created`);
         }
       } catch (error) {
-        handleErrorResponse(error);
+        if (error.response.status === 400) {
+          const errors = Object.keys(error.response.data).map(
+            (x) => error.response.data[x]
+          );
+          setError('item_category', { message: errors });
+        } else {
+          handleErrorResponse(error);
+        }
       }
     },
-    [state.itemList, state.modalAddEdit]
+    [itemList, modalAddEdit]
   );
 
   const updateItem = useCallback(
@@ -73,11 +90,15 @@ function AddEditItemModal() {
       try {
         const response = await budgetService.updateItem(id, data);
         if (response.status === 200) {
+          const newItems = itemList.map((i) =>
+            i.id === id ? response.data : i
+          );
+          setItemList(newItems);
           setState((state) => ({
             ...state,
-            itemList: state.itemList.map((x) => {
-              if (x.id === id) return response.data;
-              return x;
+            budgetList: state.budgetList.map((b) => {
+              if (b.id === budget.id) b.items = newItems;
+              return b;
             }),
           }));
           toggleAddEditModal();
@@ -87,7 +108,7 @@ function AddEditItemModal() {
         handleErrorResponse(error);
       }
     },
-    [state.itemList, state.modalAddEdit]
+    [itemList, modalAddEdit]
   );
 
   const onSubmit = (data) => {
@@ -113,7 +134,7 @@ function AddEditItemModal() {
 
   return (
     <Modal
-      isOpen={state.modalAddEdit}
+      isOpen={modalAddEdit}
       toggle={toggleAddEditModal}
       backdrop="static"
       keyboard={false}
@@ -122,89 +143,104 @@ function AddEditItemModal() {
       onClosed={isAddMode ? reset : resetUpdateForm}
     >
       <ModalHeader className="border-0" toggle={toggleAddEditModal}>
-        {isAddMode
-          ? `New ${budget.name.toLowerCase()} item`
-          : `Edit ${budget.name.toLowerCase()} item`}
+        {isAddMode ? (
+          <span className="fw-normal">
+            New <span className="fw-semibold">{budget.name.toLowerCase()}</span>{' '}
+            item
+          </span>
+        ) : (
+          <span className="fw-normal">
+            Edit{' '}
+            <span className="fw-semibold">
+              {state.itemToEdit.name.toLowerCase()}
+            </span>{' '}
+            in {budget.name.toLowerCase()}
+          </span>
+        )}
       </ModalHeader>
-      <div className="px-3">
+      {/* <div className="px-3">
         <p className="text-secondary fs-6 fw-normal mb-3">
           Add items for this budget
         </p>
-      </div>
+      </div> */}
       <ModalBody>
         <Form onSubmit={handleSubmit(onSubmit)}>
-          <FormGroup>
-            <Label for="input-select-category">
-              Item type <span className="text-danger me-2">*</span>
-            </Label>
-            <Controller
-              name="item_category"
-              rules={{ required: EMPTY_INPUT_VALIDATION_MESSAGE }}
-              control={control}
-              render={({ field }) => (
-                <Input
-                  id="input-select-category"
-                  type="select"
-                  disabled={!isAddMode}
-                  invalid={errors?.item_category ? true : false}
-                  {...field}
-                >
-                  <option value="" disabled>
-                    Select...
-                  </option>
-                  {state.itemCategoryList.map((category) => (
-                    <option key={category.id} value={category.id}>
-                      {category.name}
+          {isAddMode ? (
+            <FormGroup>
+              <Label for="input-select-category">
+                Item type <span className="text-danger me-2">*</span>
+              </Label>
+              <Controller
+                name="item_category"
+                rules={{ required: EMPTY_INPUT_VALIDATION_MESSAGE }}
+                control={control}
+                render={({ field }) => (
+                  <Input
+                    id="input-select-category"
+                    type="select"
+                    invalid={errors?.item_category ? true : false}
+                    {...field}
+                  >
+                    <option value="" disabled>
+                      Select...
                     </option>
-                  ))}
-                </Input>
-              )}
-            />
-            <FormFeedback>{errors.item_category?.message}</FormFeedback>
-          </FormGroup>
+                    {categoryList.map((category) => (
+                      <option key={category.id} value={category.id}>
+                        {category.name}
+                      </option>
+                    ))}
+                  </Input>
+                )}
+              />
+              <FormFeedback>{errors.item_category?.message}</FormFeedback>
+            </FormGroup>
+          ) : null}
 
-          <FormGroup>
-            <Label for="input-text-date">
-              Date <span className="text-danger">*</span>
-            </Label>
-            <Controller
-              name="date"
-              control={control}
-              rules={{ required: EMPTY_INPUT_VALIDATION_MESSAGE }}
-              render={() => {
-                return (
-                  <DatepickerComponent
-                    selected={getValues('date')}
-                    placeholder="mm/dd/yyyy"
-                    defaultViewDate={filterDate.current}
-                    customInput={
-                      <Input
-                        id="input-text-date"
-                        disabled={!isAddMode}
-                        invalid={errors?.date ? true : false}
-                      />
-                    }
-                    onChangeDate={(e) => {
-                      // Make sure this field is not blank
-                      if (!e.detail.date) {
-                        setValue('date', '');
-                        setError('date', {
-                          message: EMPTY_INPUT_VALIDATION_MESSAGE,
-                        });
-                        return;
+          {isAddMode ? (
+            <FormGroup>
+              <Label for="input-text-date">
+                Date <span className="text-danger">*</span>
+              </Label>
+              <Controller
+                name="date"
+                control={control}
+                rules={{ required: EMPTY_INPUT_VALIDATION_MESSAGE }}
+                render={() => {
+                  return (
+                    <DatepickerComponent
+                      selected={getValues('date')}
+                      placeholder="mm/dd/yyyy"
+                      defaultViewDate={filterDate.current}
+                      customInput={
+                        <Input
+                          id="input-text-date"
+                          invalid={errors?.date ? true : false}
+                        />
                       }
+                      onChangeDate={(e) => {
+                        // Make sure this field is not blank
+                        if (!e.detail.date) {
+                          setValue('date', '');
+                          setError('date', {
+                            message: EMPTY_INPUT_VALIDATION_MESSAGE,
+                          });
+                          return;
+                        }
 
-                      // Set field and clear error
-                      const isoDate = e.detail.date.toISOString().split('T')[0];
-                      setValue('date', isoDate);
-                      clearErrors('date');
-                    }}
-                  />
-                );
-              }}
-            />
-            <FormFeedback>{errors.date?.message}</FormFeedback>
-          </FormGroup>
+                        // Set field and clear error
+                        const isoDate = e.detail.date
+                          .toISOString()
+                          .split('T')[0];
+                        setValue('date', isoDate);
+                        clearErrors('date');
+                      }}
+                    />
+                  );
+                }}
+              />
+              <FormFeedback>{errors.date?.message}</FormFeedback>
+            </FormGroup>
+          ) : null}
 
           <FormGroup>
             <Label for="input-text-amount">
@@ -247,7 +283,7 @@ function AddEditItemModal() {
             disabled={isSubmitting}
           >
             {isSubmitting && <Spinner size="sm">Loading...</Spinner>}
-            {isAddMode ? 'Add item' : 'Save item'}
+            {isAddMode ? 'Add item' : 'Save change'}
           </Button>
         </div>
       </ModalFooter>
@@ -260,7 +296,7 @@ function AddEditItemModal() {
 //   toggleModal: PropTypes.func.isRequired,
 //   itemList: PropTypes.arrayOf(Object).isRequired,
 //   setItemList: PropTypes.func.isRequired,
-//   itemCategoryList: PropTypes.arrayOf(Object).isRequired,
+//   categoryList: PropTypes.arrayOf(Object).isRequired,
 //   setItemCategoryList: PropTypes.func.isRequired,
 //   itemToEdit: PropTypes.object,
 //   setItemToEdit: PropTypes.func,

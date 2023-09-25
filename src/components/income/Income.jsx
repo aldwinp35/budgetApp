@@ -101,9 +101,9 @@ function Income() {
         <BlankStateIncome showModal={toggleAddEditModal} />
       )} */}
 
-      <ManageCategoryModal />
       <AddEditModal />
       <AddCategoryModal />
+      <ManageCategoryModal />
     </Context.Provider>
   );
 }

@@ -125,11 +125,11 @@ function ShowOrEditCategories({ id, category }) {
     <div className="d-flex justify-content-between mb-1 p-2 border rounded">
       <div className="ms-1 align-self-center text-truncate">{category}</div>
       <div className="d-flex">
-        {/* <Tooltip text="Edit" placement="bottom">
+        <Tooltip text="Edit" placement="bottom">
           <ButtonCircle small onClick={toggleEditMode}>
             <TbPencil className="fs-5" />
           </ButtonCircle>
-        </Tooltip> */}
+        </Tooltip>
         <Tooltip text="Delete" placement="bottom">
           <ButtonCircle
             disabled={isDeleting}

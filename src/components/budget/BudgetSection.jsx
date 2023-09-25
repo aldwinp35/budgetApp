@@ -32,53 +32,29 @@ BudgetSection.propTypes = {
 };
 
 function BudgetSection({ budget }) {
-  const context = useContext(Context);
+  const { setState } = useContext(Context);
+  const [itemList, setItemList] = useState(budget.items);
+  const [categoryList, setCategoryList] = useState(null);
+  const [modalAddEdit, setModalAddEdit] = useState(false);
 
-  const [state, setState] = useState({
-    ...context.state,
-    itemList: budget.items,
-    itemCategoryList: null,
-    itemToEdit: null,
-    modalAddEdit: false,
-  });
+  // Update when budgetList is changed throuth datepicker
+  useEffect(() => {
+    setItemList(budget.items);
+  }, [budget]);
 
   // Get item categories
   useEffect(() => {
     budgetService.getItemCategoryByBudgetId(budget.id).then((res) => {
       if (res.status === 200) {
-        setState((state) => ({
-          ...state,
-          itemCategoryList: res.data.results,
-        }));
+        setCategoryList(res.data.results);
       }
     });
   }, []);
 
-  // Keep budgetList items updated
-  useEffect(() => {
-    context.setState((st) => ({
-      ...st,
-      budgetList: st.budgetList.map((x) => {
-        if (x.id === budget.id) {
-          x.items = state.itemList;
-        }
-
-        return x;
-      }),
-    }));
-  }, [state.itemList]);
-
   // Add category
-  const toggleAddEditModal = useCallback(
-    () =>
-      setState((state) => ({
-        ...state,
-        modalAddEdit: !state.modalAddEdit,
-      })),
-    []
-  );
+  const toggleAddEditModal = () => setModalAddEdit(!modalAddEdit);
 
-  const DATA_LENGTH = budget.items.length;
+  const DATA_LENGTH = itemList.length;
   const MIN_DATA_LENGTH = 15;
   const SHOW_OPTION = DATA_LENGTH > MIN_DATA_LENGTH ? true : false;
 
@@ -110,11 +86,15 @@ function BudgetSection({ budget }) {
                 .removeItem(row.id)
                 .then((res) => {
                   if (res.status === 204) {
+                    const newItems = itemList.filter((x) => x.id !== row.id);
+                    setItemList(newItems);
                     setState((state) => ({
                       ...state,
-                      itemList: state.itemList.filter((x) => x.id !== row.id),
+                      budgetList: state.budgetList.map((b) => {
+                        if (b.id === budget.id) b.items = newItems;
+                        return b;
+                      }),
                     }));
-
                     alertService.info('Item deleted');
                   }
                 })
@@ -127,23 +107,23 @@ function BudgetSection({ budget }) {
         </DropdownMenu>
       </UncontrolledDropdown>
     ),
-    [state.itemList]
+    [itemList]
   );
 
   // Main action (Add new item)
   const addNewItem = useMemo(
     () => (
-      // <Button className="w-100 border" color="light">
-      //   Add Item
-      // </Button>
-
       <Tooltip text="Add item" placement="bottom">
-        <ButtonCircle onClick={toggleAddEditModal}>
+        <ButtonCircle
+          onClick={() => {
+            toggleAddEditModal();
+          }}
+        >
           <CgMathPlus />
         </ButtonCircle>
       </Tooltip>
     ),
-    [state.itemList]
+    [itemList]
   );
 
   const columns = React.useMemo(
@@ -173,13 +153,12 @@ function BudgetSection({ budget }) {
       },
       {
         key: 'difference',
-        name: 'Difference',
-        selector: (row) =>
-          row.difference > 0 ? (
-            <div className="text-success">{toMoney(row.difference)}</div>
-          ) : (
-            <div className="text-danger">{toMoney(row.difference)}</div>
-          ),
+        name: 'Remaining',
+        selector: (row) => (
+          <div className={row.difference > 0 ? 'text-success' : 'text-danger'}>
+            {toMoney(row.difference)}
+          </div>
+        ),
         right: true,
         sortable: SHOW_OPTION,
         filterable: true,
@@ -198,102 +177,36 @@ function BudgetSection({ budget }) {
     [budget]
   );
 
-  const value = useMemo(() => ({
-    state,
-    setState,
-    toggleAddEditModal,
-    filterDate: context.filterDate,
-    budget,
-  }));
-
   return (
-    <Context.Provider value={value}>
-      <div className="col-12">
-        <div
-          className="section"
-          style={{ minHeight: DATA_LENGTH > 0 && 'unset' }}
-        >
-          <DataTable
-            title={budget.name}
-            actions={addNewItem}
-            columns={columns}
-            data={state.itemList}
-            pagination={SHOW_OPTION}
-            selectableRows={SHOW_OPTION}
-            noDataComponent={
-              <p className="fst-italic text-secondary text-center py-5">
-                No items on this date
-              </p>
-            }
-          />
-        </div>
-        <AddEditItemModal />
+    <div className="col-12">
+      <div
+        className="section"
+        style={{ minHeight: DATA_LENGTH > 0 && 'unset' }}
+      >
+        <DataTable
+          title={budget.name}
+          actions={addNewItem}
+          columns={columns}
+          data={itemList}
+          pagination={SHOW_OPTION}
+          selectableRows={SHOW_OPTION}
+          noDataComponent={
+            <p className="fst-italic text-secondary text-center py-5">
+              No items on this date
+            </p>
+          }
+        />
       </div>
-    </Context.Provider>
+      <AddEditItemModal
+        budget={budget}
+        itemList={itemList}
+        setItemList={setItemList}
+        categoryList={categoryList}
+        modalAddEdit={modalAddEdit}
+        toggleAddEditModal={toggleAddEditModal}
+      />
+    </div>
   );
-
-  // const [editMode, setEditMode] = React.useState(false);
-  //   return (
-  //     <div className="col-12">
-  //       <div className="section">
-  //         {/* Section Header */}
-  //         <div className="d-flex align-items-center mb-3">
-  //           <h5 title={budget.name} className="text-truncate">
-  //             {budget.name}
-  //           </h5>
-  //         </div>
-  //         {/* Table Content */}
-  //         <div className="table-wrapper">
-  //           {budget.items?.length > 0 ? (
-  //             <>
-  //               <div className="table-content">
-  //                 {!editMode ? (
-  //                   <DisplayBudgetItems budget={budget} />
-  //                 ) : (
-  //                   <EditBudgetItems budget={budget} />
-  //                 )}
-  //               </div>
-  //               <div className="d-flex gap-2 justify-content-between justify-content-sm-start">
-  //                 <button type="button" className="btn btn-primary text-truncate">
-  //                   Add Expenses
-  //                 </button>
-  //                 <button
-  //                   type="button"
-  //                   onClick={() => setEditMode(!editMode)}
-  //                   className="btn btn-link text-decoration-none fw-semibold text-truncate"
-  //                 >
-  //                   {!editMode ? 'Edit Items' : 'Cancel'}
-  //                 </button>
-  //               </div>
-  //             </>
-  //           ) : (
-  //             <div className="d-flex flex-column">
-  //               {!editMode ? (
-  //                 <button
-  //                   type="button"
-  //                   onClick={() => setEditMode(!editMode)}
-  //                   className="btn btn-outline-dark"
-  //                 >
-  //                   Add Items
-  //                 </button>
-  //               ) : (
-  //                 <>
-  //                   <EditBudgetItems budget={budget} />
-  //                   <button
-  //                     type="button"
-  //                     onClick={() => setEditMode(!editMode)}
-  //                     className="btn btn-outline-dark"
-  //                   >
-  //                     Cancel
-  //                   </button>
-  //                 </>
-  //               )}
-  //             </div>
-  //           )}
-  //         </div>
-  //       </div>
-  //     </div>
-  //   );
 }
 
 export default BudgetSection;

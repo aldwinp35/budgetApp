@@ -90,13 +90,14 @@ function ManageBudget() {
       const res = await budgetService.getByMonthAndYear(month, year);
 
       if (res.status === 200) {
-        const { results, expenses, income, balance } = res.data;
+        const { results, expenses, income, balance, planned } = res.data;
 
         setState((state) => ({
           ...state,
           budgetList: results,
           expenses: expenses,
           income: income,
+          planned: planned,
           remainingBalance: balance,
         }));
       }

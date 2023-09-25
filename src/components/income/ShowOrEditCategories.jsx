@@ -42,9 +42,15 @@ function ShowOrEditCategories({ id, category }) {
         setState((state) => ({
           ...state,
           categoryList: state.categoryList.map((x) => {
+            // Update name in categoryList
             if (x.id === id) return { ...x, name: res.data.name };
             return x;
           }),
+          incomeList: state.incomeList.map((x) => {
+            // Update category name in incomeList
+            if (x.category === id) return { ...x, name: res.data.name };
+            return x;
+          })
         }));
         alertService.info('Category updated');
         setIsEditMode(false);
@@ -67,7 +73,10 @@ function ShowOrEditCategories({ id, category }) {
       if (res.status === 204) {
         setState((state) => ({
           ...state,
+          // Remove deleted category from categoryList
           categoryList: state.categoryList.filter((x) => x.id !== id),
+          // Remove deleted category from incomeList
+          incomeList: state.incomeList.filter((x) => x.category !== id),
         }));
 
         alertService.info('Category deleted');
@@ -125,11 +134,11 @@ function ShowOrEditCategories({ id, category }) {
     <div className="d-flex justify-content-between mb-1 p-2 border rounded">
       <div className="ms-1 align-self-center text-truncate">{category}</div>
       <div className="d-flex">
-        {/* <Tooltip text="Edit" placement="bottom">
+        <Tooltip text="Edit" placement="bottom">
           <ButtonCircle small onClick={toggleEditMode}>
             <TbPencil className="fs-5" />
           </ButtonCircle>
-        </Tooltip> */}
+        </Tooltip>
         <Tooltip text="Delete" placement="bottom">
           <ButtonCircle
             disabled={isDeleting}

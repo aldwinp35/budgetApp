@@ -1,7 +1,7 @@
 import React from 'react';
 import { IoWarningOutline } from 'react-icons/io5';
 import { Link } from 'react-router-dom';
-import { Red, Green } from '../util/Markers';
+import { Red, Green, Orange } from '../util/Markers';
 import { toMoney } from '../../assets/lib/helpers';
 import Context from '../../context/Context';
 import Tooltip from '../util/Tooltip';
@@ -19,7 +19,7 @@ function Balance() {
   return (
     <div className="col-12">
       <div className="section" style={{ minHeight: 'unset' }}>
-        <table className="mb-3 table table-sm table-borderless">
+        <table className="mb-3 table table-sm table-borderless table-hover">
           <tbody>
             <tr>
               <td className="pe-4 d-flex align-items-center">
@@ -45,12 +45,18 @@ function Balance() {
             </tr>
             <tr>
               <td className="pe-4 d-flex align-items-center">
+                <Orange /> Planned
+              </td>
+              <td className="text-end">{toMoney(state.planned)}</td>
+            </tr>
+            <tr>
+              <td className="pe-4 d-flex align-items-center">
                 <Red /> Expenses
               </td>
               <td className="text-end">{toMoney(state.expenses)}</td>
             </tr>
             <tr className="border-dark border-top">
-              <td className="pe-4 fw-semibold">&nbsp;&nbsp;Balance</td>
+              <td className="pe-4 fw-semibold">&nbsp;&nbsp;Remaining</td>
               <td className="text-end fw-semibold">
                 {toMoney(state.remainingBalance)}
               </td>

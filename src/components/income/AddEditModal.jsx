@@ -85,42 +85,14 @@ function AddEditModal() {
         const response = await incomeService.update(id, data);
 
         if (response.status === 200) {
-          const oldDate = state.incomeToEdit.date.slice(0, 7);
-          const newDate = response.data.date.slice(0, 7);
-          if (oldDate === newDate) {
-            // When date is updated in the same month and year as the previous date
-            // Find and update the income state
-            setState((state) => ({
-              ...state,
-              incomeList: state.incomeList.map((x) => {
-                if (x.id === id) return response.data;
-                return x;
-              }),
-            }));
-
-            alertService.info('Income updated.');
-          } else {
-            // // Remove income from state, so the user has to change the date
-            // //  to the date where the income was updated
-            // setState((state) => ({
-            //   ...state,
-            //   incomeList: state.incomeList.filter(
-            //     (x) => x.id !== response.data.id
-            //   ),
-            // }));
-            // // Show where the updated income was moved
-            // const updatedDate = new Date(response.data.date).toLocaleString(
-            //   'en-US',
-            //   {
-            //     month: 'long',
-            //     year: 'numeric',
-            //   }
-            // );
-            // alertService.info(
-            //   `Income updated. The income was moved to <strong>${updatedDate}</strong>`,
-            //   { autoClose: false }
-            // );
-          }
+          // Update state
+          setState((state) => ({
+            ...state,
+            incomeList: state.incomeList.map((x) => {
+              if (x.id === id) return response.data;
+              return x;
+            }),
+          }));
 
           // Close modal
           toggleAddEditModal();
@@ -166,44 +138,48 @@ function AddEditModal() {
       onClosed={isAddMode ? reset : resetUpdateForm}
     >
       <ModalHeader className="border-0" toggle={toggleAddEditModal}>
-        {isAddMode ? 'New income' : 'Edit income'}
+        {isAddMode ? (
+          <span>New income</span>
+        ) : (
+          <span>Edit {state.incomeToEdit.name.toLowerCase()}</span>
+        )}
       </ModalHeader>
-      <div className="px-3">
+      {/* <div className="px-3">
         <p className="text-secondary fs-6 fw-normal mb-3">
           Record your monthly income and organize them by categories.
         </p>
-      </div>
+      </div> */}
       <ModalBody>
         <Form onSubmit={handleSubmit(onSubmit)}>
-          <FormGroup>
-            <Label for="input-select-category">
-              Category <span className="text-danger me-2">*</span>
-            </Label>
-            <Controller
-              name="category"
-              rules={{ required: EMPTY_INPUT_VALIDATION_MESSAGE }}
-              control={control}
-              render={({ field }) => (
-                <Input
-                  id="input-select-category"
-                  type="select"
-                  disabled={!isAddMode}
-                  invalid={errors?.category ? true : false}
-                  {...field}
-                >
-                  <option value="" disabled>
-                    Select...
-                  </option>
-                  {state.categoryList.map((category) => (
-                    <option key={category.id} value={category.id}>
-                      {category.name}
+          {isAddMode ? (
+            <FormGroup>
+              <Label for="input-select-category">
+                Category <span className="text-danger me-2">*</span>
+              </Label>
+              <Controller
+                name="category"
+                rules={{ required: EMPTY_INPUT_VALIDATION_MESSAGE }}
+                control={control}
+                render={({ field }) => (
+                  <Input
+                    id="input-select-category"
+                    type="select"
+                    invalid={errors?.category ? true : false}
+                    {...field}
+                  >
+                    <option value="" disabled>
+                      Select...
                     </option>
-                  ))}
-                </Input>
-              )}
-            />
-            <FormFeedback>{errors.category?.message}</FormFeedback>
-            {isAddMode ? (
+                    {state.categoryList.map((category) => (
+                      <option key={category.id} value={category.id}>
+                        {category.name}
+                      </option>
+                    ))}
+                  </Input>
+                )}
+              />
+              <FormFeedback>{errors.category?.message}</FormFeedback>
+
               <div className="mt-1">
                 <div
                   tabIndex="0"
@@ -217,51 +193,55 @@ function AddEditModal() {
                   New category
                 </div>
               </div>
-            ) : null}
-          </FormGroup>
+            </FormGroup>
+          ) : null}
 
-          <FormGroup>
-            <Label for="input-text-date">
-              Date <span className="text-danger">*</span>
-            </Label>
-            <Controller
-              name="date"
-              control={control}
-              rules={{ required: EMPTY_INPUT_VALIDATION_MESSAGE }}
-              render={() => {
-                return (
-                  <DatepickerComponent
-                    selected={getValues('date')}
-                    placeholder="mm/dd/yyyy"
-                    defaultViewDate={filterDate.current}
-                    customInput={
-                      <Input
-                        id="input-text-date"
-                        invalid={errors?.date ? true : false}
-                        disabled={!isAddMode}
-                      />
-                    }
-                    onChangeDate={(e) => {
-                      // Make sure this field is not blank
-                      if (!e.detail.date) {
-                        setValue('date', '');
-                        setError('date', {
-                          message: EMPTY_INPUT_VALIDATION_MESSAGE,
-                        });
-                        return;
+          {isAddMode ? (
+            <FormGroup>
+              <Label for="input-text-date">
+                Date <span className="text-danger">*</span>
+              </Label>
+              <Controller
+                name="date"
+                control={control}
+                rules={{ required: EMPTY_INPUT_VALIDATION_MESSAGE }}
+                render={() => {
+                  return (
+                    <DatepickerComponent
+                      selected={getValues('date')}
+                      placeholder="mm/dd/yyyy"
+                      defaultViewDate={filterDate.current}
+                      customInput={
+                        <Input
+                          id="input-text-date"
+                          invalid={errors?.date ? true : false}
+                          // disabled={!isAddMode}
+                        />
                       }
+                      onChangeDate={(e) => {
+                        // Make sure this field is not blank
+                        if (!e.detail.date) {
+                          setValue('date', '');
+                          setError('date', {
+                            message: EMPTY_INPUT_VALIDATION_MESSAGE,
+                          });
+                          return;
+                        }
 
-                      // Set field and clear error
-                      const isoDate = e.detail.date.toISOString().split('T')[0];
-                      setValue('date', isoDate);
-                      clearErrors('date');
-                    }}
-                  />
-                );
-              }}
-            />
-            <FormFeedback>{errors.date?.message}</FormFeedback>
-          </FormGroup>
+                        // Set field and clear error
+                        const isoDate = e.detail.date
+                          .toISOString()
+                          .split('T')[0];
+                        setValue('date', isoDate);
+                        clearErrors('date');
+                      }}
+                    />
+                  );
+                }}
+              />
+              <FormFeedback>{errors.date?.message}</FormFeedback>
+            </FormGroup>
+          ) : null}
 
           <FormGroup>
             <Label for="input-text-amount">
@@ -304,7 +284,7 @@ function AddEditModal() {
             disabled={isSubmitting}
           >
             {isSubmitting && <Spinner size="sm">Loading...</Spinner>}
-            {isAddMode ? 'Add income' : 'Save income'}
+            {isAddMode ? 'Add income' : 'Save change'}
           </Button>
         </div>
       </ModalFooter>
