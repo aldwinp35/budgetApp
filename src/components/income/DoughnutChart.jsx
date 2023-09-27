@@ -65,7 +65,7 @@ function DoughnutChart() {
   );
 
   return (
-    <div className="col-12 col-sm-6 col-lg-3">
+    <>
       {state.incomeList.length === 0 && (
         <div className="section d-flex flex-column justify-content-center align-items-center">
           <div className="text-secondary fst-italic">No chart data</div>
@@ -81,7 +81,7 @@ function DoughnutChart() {
           <Doughnut options={options} data={getChartData} />
         </div>
       )}
-    </div>
+    </>
   );
 }
 

@@ -50,7 +50,7 @@ function ShowOrEditCategories({ id, category }) {
             // Update category name in incomeList
             if (x.category === id) return { ...x, name: res.data.name };
             return x;
-          })
+          }),
         }));
         alertService.info('Category updated');
         setIsEditMode(false);

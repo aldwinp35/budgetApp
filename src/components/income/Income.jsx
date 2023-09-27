@@ -12,6 +12,7 @@ import ManageCategoryModal from './ManageCategoryModal';
 import AddEditModal from './AddEditModal';
 import AddCategoryModal from './AddCategoryModal';
 import IncomeSection from './IncomeSection';
+// import CategorySection from './CategorySection';
 // import BlankStateIncome from './BlankStateIncome';
 import DoughnutChart from './DoughnutChart';
 import Context from '../../context/Context';
@@ -93,7 +94,10 @@ function Income() {
       {state.incomeList && (
         <div className="row mb-3">
           <IncomeSection />
+          <div className="col-12 col-sm-6 col-lg-3">
+          {/* <CategorySection /> */}
           <DoughnutChart />
+          </div>
         </div>
       )}
 

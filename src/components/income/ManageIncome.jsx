@@ -75,6 +75,11 @@ function ManageIncome() {
             beforeShowMonth: (date) => beforeShowMonth(date, res.data.results),
             beforeShowYear: (date) => beforeShowYear(date, res.data.results),
           });
+
+          // setState((state) => ({
+          //   ...state,
+
+          // }))
         }
       })
       .catch(handleErrorResponse);

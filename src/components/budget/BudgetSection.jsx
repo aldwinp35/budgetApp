@@ -9,14 +9,11 @@ import PropTypes from 'prop-types';
 import { CgMathPlus } from 'react-icons/cg';
 import { TbDotsVertical, TbEdit, TbTrash } from 'react-icons/tb';
 import {
-  // Button,
   UncontrolledDropdown,
   DropdownToggle,
   DropdownMenu,
   DropdownItem,
 } from 'reactstrap';
-// import DisplayBudgetItems from './DisplayBudgetItems';
-// import EditBudgetItems from './EditBudgetItems';
 
 import Context from '../../context/Context';
 import AddEditItemModal from './AddEditItemModal';
@@ -202,6 +199,7 @@ function BudgetSection({ budget }) {
         itemList={itemList}
         setItemList={setItemList}
         categoryList={categoryList}
+        setCategoryList={setCategoryList}
         modalAddEdit={modalAddEdit}
         toggleAddEditModal={toggleAddEditModal}
       />

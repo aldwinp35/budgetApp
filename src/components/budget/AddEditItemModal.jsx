@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback, useContext } from 'react';
+import React, { useState, useEffect, useCallback, useContext } from 'react';
 // import PropTypes from 'prop-types';
 import {
   Modal,
@@ -17,6 +17,8 @@ import { Controller, useForm } from 'react-hook-form';
 import { NumericFormat } from 'react-number-format';
 
 import DatepickerComponent from '../util/DatepickerComponent';
+import { CustomSelect } from '../util/CustomSelect';
+
 import {
   EMPTY_INPUT_VALIDATION_MESSAGE,
   handleErrorResponse,
@@ -30,11 +32,12 @@ function AddEditItemModal({
   itemList,
   setItemList,
   categoryList,
+  setCategoryList,
   modalAddEdit,
   toggleAddEditModal,
 }) {
   const { filterDate, state, setState } = useContext(Context);
-
+  const [isLoading, setIsLoading] = useState(false);
   const isAddMode = !state.itemToEdit;
 
   const {
@@ -57,6 +60,7 @@ function AddEditItemModal({
   const createItem = useCallback(
     async (data) => {
       try {
+        data.item_category = data.item_category.id;
         const response = await budgetService.createItem(data);
         if (response.status === 201) {
           const newItems = [...itemList, response.data];
@@ -88,6 +92,7 @@ function AddEditItemModal({
   const updateItem = useCallback(
     async (id, data) => {
       try {
+        data.item_category = data.item_category.id;
         const response = await budgetService.updateItem(id, data);
         if (response.status === 200) {
           const newItems = itemList.map((i) =>
@@ -120,15 +125,46 @@ function AddEditItemModal({
     setState((state) => ({ ...state, itemToEdit: null }));
   };
 
+  const handleCreate = useCallback(async (inputValue) => {
+    setIsLoading(true);
+    const category = { budget_category: budget.id, name: inputValue };
+
+    try {
+      const response = await budgetService.createItemCategory(category);
+      const newOption = {
+        id: response.data.id,
+        label: response.data.name,
+        value: response.data.name,
+      };
+
+      setIsLoading(false);
+      setCategoryList((prev) => [...prev, response.data]);
+      setValue('item_category', newOption);
+    } catch (error) {
+      if (error.response.status === 400) {
+        const errors = Object.keys(error.response.data).map(
+          (x) => error.response.data[x]
+        );
+        setError('item_category', { message: errors });
+      } else {
+        handleErrorResponse(error);
+      }
+    }
+  }, []);
+
   useEffect(() => {
     if (!isAddMode) {
-      setValue('item_category', state.itemToEdit.item_category);
       setValue('date', state.itemToEdit.date);
       setValue('amount', state.itemToEdit.amount);
+      setValue('item_category', {
+        id: state.itemToEdit.id,
+        label: state.itemToEdit.name,
+        value: state.itemToEdit.name,
+      });
     } else {
-      setValue('item_category', '');
       setValue('date', '');
       setValue('amount', '');
+      setValue('item_category', '');
     }
   }, [isAddMode]);
 
@@ -168,31 +204,44 @@ function AddEditItemModal({
           {isAddMode ? (
             <FormGroup>
               <Label for="input-select-category">
-                Item type <span className="text-danger me-2">*</span>
+                Item category <span className="text-danger me-2">*</span>
               </Label>
               <Controller
                 name="item_category"
                 rules={{ required: EMPTY_INPUT_VALIDATION_MESSAGE }}
                 control={control}
-                render={({ field }) => (
-                  <Input
-                    id="input-select-category"
-                    type="select"
+                render={() => (
+                  <CustomSelect
+                    isClearable
+                    inputId="input-select-category"
+                    isDisabled={isLoading}
+                    isLoading={isLoading}
+                    onChange={(value) => {
+                      if (!value) {
+                        setValue('item_category', '');
+                        setError('item_category', {
+                          message: 'This field is required',
+                        });
+                        return;
+                      }
+
+                      setValue('item_category', value);
+                      clearErrors('item_category');
+                    }}
+                    onCreateOption={handleCreate}
+                    options={categoryList.map(({ id, name }) => ({
+                      id,
+                      label: name,
+                      value: name,
+                    }))}
                     invalid={errors?.item_category ? true : false}
-                    {...field}
-                  >
-                    <option value="" disabled>
-                      Select...
-                    </option>
-                    {categoryList.map((category) => (
-                      <option key={category.id} value={category.id}>
-                        {category.name}
-                      </option>
-                    ))}
-                  </Input>
+                    value={getValues('item_category')}
+                  />
                 )}
               />
-              <FormFeedback>{errors.item_category?.message}</FormFeedback>
+              <small className="text-danger">
+                {errors.item_category?.message}
+              </small>
             </FormGroup>
           ) : null}
 
