@@ -6,7 +6,7 @@ import {
   DropdownItem,
   DropdownToggle,
 } from 'reactstrap';
-import { TbDotsVertical, TbEdit, TbTrash } from 'react-icons/tb';
+import { TbDotsVertical, TbEdit } from 'react-icons/tb';
 import { CgTrash } from 'react-icons/cg';
 
 import Loading from '../util/Loading';
@@ -65,7 +65,7 @@ function IncomeSection() {
                 .catch(handleErrorResponse);
             }}
           >
-            <TbTrash className="fs-5 me-3" />
+            <CgTrash className="fs-5 me-3" />
             Delete
           </DropdownItem>
         </DropdownMenu>

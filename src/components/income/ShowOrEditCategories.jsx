@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useContext } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { TbCheck, TbArrowBackUp, TbPencil } from 'react-icons/tb';
+import { TbCheck, TbArrowBackUp, TbEdit } from 'react-icons/tb';
 import { CgTrash } from 'react-icons/cg';
 import { Input, Form, FormGroup, FormFeedback } from 'reactstrap';
 
@@ -64,7 +64,7 @@ function ShowOrEditCategories({ id, category }) {
   }, []);
 
   const deleteCategory = useCallback(async () => {
-    const result = confirm('Are you sure want to delete this category?');
+    const result = confirm('Are you sure you want to delete this category?');
     if (!result) return;
     setIsDeleting(true);
 
@@ -136,7 +136,7 @@ function ShowOrEditCategories({ id, category }) {
       <div className="d-flex">
         <Tooltip text="Edit" placement="bottom">
           <ButtonCircle small onClick={toggleEditMode}>
-            <TbPencil className="fs-5" />
+            <TbEdit className="fs-5" />
           </ButtonCircle>
         </Tooltip>
         <Tooltip text="Delete" placement="bottom">

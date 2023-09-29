@@ -6,8 +6,8 @@ import React, {
   useContext,
 } from 'react';
 import PropTypes from 'prop-types';
-import { CgMathPlus } from 'react-icons/cg';
-import { TbDotsVertical, TbEdit, TbTrash } from 'react-icons/tb';
+import { CgMathPlus, CgTrash } from 'react-icons/cg';
+import { TbDotsVertical, TbEdit } from 'react-icons/tb';
 import {
   UncontrolledDropdown,
   DropdownToggle,
@@ -31,22 +31,12 @@ BudgetSection.propTypes = {
 function BudgetSection({ budget }) {
   const { setState } = useContext(Context);
   const [itemList, setItemList] = useState(budget.items);
-  const [categoryList, setCategoryList] = useState(null);
   const [modalAddEdit, setModalAddEdit] = useState(false);
 
   // Update when budgetList is changed throuth datepicker
   useEffect(() => {
     setItemList(budget.items);
   }, [budget]);
-
-  // Get item categories
-  useEffect(() => {
-    budgetService.getItemCategoryByBudgetId(budget.id).then((res) => {
-      if (res.status === 200) {
-        setCategoryList(res.data.results);
-      }
-    });
-  }, []);
 
   // Add category
   const toggleAddEditModal = () => setModalAddEdit(!modalAddEdit);
@@ -98,7 +88,7 @@ function BudgetSection({ budget }) {
                 .catch(handleErrorResponse);
             }}
           >
-            <TbTrash className="fs-5 me-3" />
+            <CgTrash className="fs-5 me-3" />
             Delete
           </DropdownItem>
         </DropdownMenu>
@@ -198,8 +188,6 @@ function BudgetSection({ budget }) {
         budget={budget}
         itemList={itemList}
         setItemList={setItemList}
-        categoryList={categoryList}
-        setCategoryList={setCategoryList}
         modalAddEdit={modalAddEdit}
         toggleAddEditModal={toggleAddEditModal}
       />

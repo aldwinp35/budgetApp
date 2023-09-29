@@ -1,5 +1,11 @@
-import React, { useState, useEffect, useCallback, useContext } from 'react';
-// import PropTypes from 'prop-types';
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useContext,
+  useRef,
+} from 'react';
+import PropTypes from 'prop-types';
 import {
   Modal,
   ModalHeader,
@@ -16,28 +22,28 @@ import {
 import { Controller, useForm } from 'react-hook-form';
 import { NumericFormat } from 'react-number-format';
 
+import BudgetType from '../../types/BudgetType';
+import { OptionList } from './OptionList';
 import DatepickerComponent from '../util/DatepickerComponent';
 import { CustomSelect } from '../util/CustomSelect';
-
+import Context from '../../context/Context';
+import { budgetService, alertService } from '../../api';
 import {
   EMPTY_INPUT_VALIDATION_MESSAGE,
   handleErrorResponse,
 } from '../../assets/lib/helpers';
-import Context from '../../context/Context';
-
-import { budgetService, alertService } from '../../api';
 
 function AddEditItemModal({
   budget,
   itemList,
   setItemList,
-  categoryList,
-  setCategoryList,
   modalAddEdit,
   toggleAddEditModal,
 }) {
   const { filterDate, state, setState } = useContext(Context);
   const [isLoading, setIsLoading] = useState(false);
+  const [categoryList, setCategoryList] = useState(null);
+  const itemListRef = useRef(itemList);
   const isAddMode = !state.itemToEdit;
 
   const {
@@ -116,6 +122,24 @@ function AddEditItemModal({
     [itemList, modalAddEdit]
   );
 
+  const deleteCategory = useCallback(async (e, id) => {
+    e.stopPropagation();
+    e.preventDefault();
+
+    const result = confirm(
+      'Are you sure you want to delete this item category?'
+    );
+    if (!result) return;
+
+    const response = await budgetService.removeItemCategory(id);
+    if (response.status === 204) {
+      // Remove category from categoryList
+      setCategoryList((prev) => prev.filter((x) => x.id !== id));
+      // Remove item that has categoryList
+      setItemList((prev) => prev.filter((x) => x.item_category !== id));
+    }
+  }, []);
+
   const onSubmit = (data) => {
     return isAddMode ? createItem(data) : updateItem(state.itemToEdit.id, data);
   };
@@ -152,6 +176,15 @@ function AddEditItemModal({
     }
   }, []);
 
+  // Get item categories
+  useEffect(() => {
+    budgetService.getItemCategoryByBudgetId(budget.id).then((res) => {
+      if (res.status === 200) {
+        setCategoryList(res.data.results);
+      }
+    });
+  }, []);
+
   useEffect(() => {
     if (!isAddMode) {
       setValue('date', state.itemToEdit.date);
@@ -167,6 +200,26 @@ function AddEditItemModal({
       setValue('item_category', '');
     }
   }, [isAddMode]);
+
+  useEffect(() => {
+    // Update balance when items are changed
+    if (itemList !== itemListRef.current) {
+      budgetService
+        .getBalance(
+          filterDate.current.getMonth() + 1,
+          filterDate.current.getFullYear()
+        )
+        .then((res) => {
+          if (res.status === 200) {
+            setState((st) => ({
+              ...st,
+              planned: res.data.planned,
+            }));
+          }
+        })
+        .catch((error) => console.error('Error: ', error));
+    }
+  }, [itemList]);
 
   return (
     <Modal
@@ -216,11 +269,19 @@ function AddEditItemModal({
                     inputId="input-select-category"
                     isDisabled={isLoading}
                     isLoading={isLoading}
+                    onCreateOption={handleCreate}
+                    invalid={errors?.item_category ? true : false}
+                    value={getValues('item_category')}
+                    options={categoryList.map(({ id, name }) => ({
+                      id,
+                      label: name,
+                      value: name,
+                    }))}
                     onChange={(value) => {
                       if (!value) {
                         setValue('item_category', '');
                         setError('item_category', {
-                          message: 'This field is required',
+                          message: EMPTY_INPUT_VALIDATION_MESSAGE,
                         });
                         return;
                       }
@@ -228,14 +289,8 @@ function AddEditItemModal({
                       setValue('item_category', value);
                       clearErrors('item_category');
                     }}
-                    onCreateOption={handleCreate}
-                    options={categoryList.map(({ id, name }) => ({
-                      id,
-                      label: name,
-                      value: name,
-                    }))}
-                    invalid={errors?.item_category ? true : false}
-                    value={getValues('item_category')}
+                    components={{ Option: OptionList }}
+                    onDelete={deleteCategory}
                   />
                 )}
               />
@@ -340,20 +395,16 @@ function AddEditItemModal({
   );
 }
 
-// AddEdit.propTypes = {
-//   modal: PropTypes.bool.isRequired,
-//   toggleModal: PropTypes.func.isRequired,
-//   itemList: PropTypes.arrayOf(Object).isRequired,
-//   setItemList: PropTypes.func.isRequired,
-//   categoryList: PropTypes.arrayOf(Object).isRequired,
-//   setItemCategoryList: PropTypes.func.isRequired,
-//   itemToEdit: PropTypes.object,
-//   setItemToEdit: PropTypes.func,
-// };
+AddEditItemModal.propTypes = {
+  budget: PropTypes.shape({ BudgetType }.propTypes).isRequired,
+  itemList: PropTypes.arrayOf(Object).isRequired,
+  setItemList: PropTypes.func.isRequired,
+  modalAddEdit: PropTypes.bool.isRequired,
+  toggleAddEditModal: PropTypes.func.isRequired,
+};
 
-// AddEdit.defaultProps = {
-//   itemToEdit: null,
-//   setItemToEdit: null,
+// AddEditItemModal.defaultProps = {
+//   ...
 // };
 
 export default AddEditItemModal;

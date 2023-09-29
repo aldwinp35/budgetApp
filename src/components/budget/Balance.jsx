@@ -14,7 +14,7 @@ function Balance() {
     const p = Math.round((state.expenses / state.income) * 100);
     const barStatus = 100 - p;
     return barStatus || 0;
-  });
+  }, []);
 
   return (
     <div className="col-12">
