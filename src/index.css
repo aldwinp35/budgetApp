@@ -31,12 +31,6 @@ p {
   margin-bottom: 0;
 }
 
-.pagination-bar {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-}
-
 /* General styles */
 .section {
   background-color: #fff;

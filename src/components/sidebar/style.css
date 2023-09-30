@@ -1,7 +1,5 @@
 #sidebar {
-  border-right: none;
-  position: fixed;
-  height: 100%;
+  border: none;
 }
 
 #sidebar hr {
@@ -11,12 +9,6 @@
 #sidebar #logo {
   margin: 15px 25px;
   color: #ccc;
-  /* Other styles are applied with bootstrap */
-}
-
-#sidebar #logo #text-link {
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 #sidebar #logo #text-link a {

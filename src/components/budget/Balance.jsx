@@ -8,13 +8,16 @@ import Tooltip from '../util/Tooltip';
 
 function Balance() {
   const { state, filterDate } = React.useContext(Context);
-
+  // console.log('expense: ', state.expenses);
+  // console.log('income: ', state.income);
+  // console.log('planned: ', state.planned);
+  // console.log('remaining: ', state.remainingBalance);
   const updateBar = React.useCallback(() => {
     // Get remaining income
     const p = Math.round((state.expenses / state.income) * 100);
     const barStatus = 100 - p;
     return barStatus || 0;
-  }, []);
+  }, [state.expenses, state.income]);
 
   return (
     <div className="col-12">

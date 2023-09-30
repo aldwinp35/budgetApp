@@ -142,7 +142,13 @@ function BudgetSection({ budget }) {
         key: 'difference',
         name: 'Remaining',
         selector: (row) => (
-          <div className={row.difference > 0 ? 'text-success' : 'text-danger'}>
+          <div
+            className={
+              row.difference > 0
+                ? 'text-success fw-semibold'
+                : 'text-danger fw-semibold'
+            }
+          >
             {toMoney(row.difference)}
           </div>
         ),
@@ -171,6 +177,7 @@ function BudgetSection({ budget }) {
         style={{ minHeight: DATA_LENGTH > 0 && 'unset' }}
       >
         <DataTable
+          className="mb-3"
           title={budget.name}
           actions={addNewItem}
           columns={columns}
@@ -183,6 +190,7 @@ function BudgetSection({ budget }) {
             </p>
           }
         />
+        <button className="btn btn btn-primary">Add expense</button>
       </div>
       <AddEditItemModal
         budget={budget}
